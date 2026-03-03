@@ -1,0 +1,8 @@
+{
+  "parent": "functionalstoragelgeacy:block/base_x_1",
+  "textures": {
+    "front": "functionalstoragelgeacy:blocks/fluid_front",
+    "side": "functionalstoragelgeacy:blocks/fluid_side",
+    "top": "functionalstoragelgeacy:blocks/fluid_top"
+  }
+}

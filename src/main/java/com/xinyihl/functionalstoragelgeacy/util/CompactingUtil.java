@@ -1,0 +1,240 @@
+package com.xinyihl.functionalstoragelgeacy.util;
+
+import com.xinyihl.functionalstoragelgeacy.inventory.BigInventoryHandler;
+import com.xinyihl.functionalstoragelgeacy.inventory.CompactingInventoryHandler;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
+import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Utility for finding compacting recipes (e.g. Iron Nugget -> Iron Ingot -> Iron Block).
+ * Uses CraftingManager to look up 3x3, 2x2, and 1x1 recipes.
+ */
+public class CompactingUtil {
+
+    /**
+     * Find compacting results for a given item.
+     * Returns a list of Result from highest tier to lowest tier (base item last).
+     *
+     * @param world The world instance for recipe lookup
+     * @param stack The item to find compacting recipes for
+     * @param maxSlots Maximum number of tiers (2 or 3)
+     * @return List of compacting tiers
+     */
+    public static List<CompactingInventoryHandler.Result> getCompactingResults(World world, ItemStack stack, int maxSlots) {
+        List<CompactingInventoryHandler.Result> results = new ArrayList<>();
+
+        // Start with the given item
+        ItemStack current = stack.copy();
+        current.setCount(1);
+
+        // Try to find higher tiers (compact up)
+        List<HigherTier> higherTiers = new ArrayList<>();
+        ItemStack searching = current.copy();
+        for (int tier = 0; tier < maxSlots - 1; tier++) {
+            HigherTier higher = findHigherTier(world, searching);
+            if (higher != null) {
+                higherTiers.add(higher);
+                searching = higher.result.copy();
+            } else {
+                break;
+            }
+        }
+
+        if (higherTiers.isEmpty()) {
+            // Try to find lower tiers (decompress down)
+            List<LowerTier> lowerTiers = new ArrayList<>();
+            searching = current.copy();
+            for (int tier = 0; tier < maxSlots - 1; tier++) {
+                LowerTier lower = findLowerTier(world, searching);
+                if (lower != null) {
+                    lowerTiers.add(lower);
+                    searching = lower.result.copy();
+                } else {
+                    break;
+                }
+            }
+
+            // Build results from input (highest) down
+            int needed = 1;
+            results.add(new CompactingInventoryHandler.Result(current, needed));
+            for (LowerTier lt : lowerTiers) {
+                needed *= lt.count;
+                results.add(new CompactingInventoryHandler.Result(lt.result, needed));
+            }
+        } else {
+            // Build results from highest tier down to input
+            int topNeeded = 1;
+            // Add tiers from highest to lowest
+            // higherTiers are in order: input->higher1->higher2
+            // We want: [highest, ..., input]
+            List<ItemStack> chain = new ArrayList<>();
+            List<Integer> counts = new ArrayList<>();
+            chain.add(current);
+            for (HigherTier ht : higherTiers) {
+                counts.add(ht.inputCount);
+                chain.add(ht.result);
+            }
+
+            // Reverse: chain is [input, higher1, higher2] -> we want [higher2, higher1, input]
+            // counts is [count_to_get_higher1, count_to_get_higher2]
+            int cumulativeNeeded = 1;
+            results.add(new CompactingInventoryHandler.Result(chain.get(chain.size() - 1), 1));
+            for (int i = chain.size() - 2; i >= 0; i--) {
+                cumulativeNeeded *= counts.get(i);
+                results.add(new CompactingInventoryHandler.Result(chain.get(i), cumulativeNeeded));
+            }
+
+            // Try to extend downward from input
+            if (results.size() < maxSlots) {
+                LowerTier lower = findLowerTier(world, current);
+                if (lower != null) {
+                    results.add(new CompactingInventoryHandler.Result(lower.result, cumulativeNeeded * lower.count));
+                }
+            }
+        }
+
+        // Ensure we have exactly maxSlots
+        while (results.size() < maxSlots) {
+            results.add(new CompactingInventoryHandler.Result(ItemStack.EMPTY, 1));
+        }
+        if (results.size() > maxSlots) {
+            results = results.subList(0, maxSlots);
+        }
+
+        return results;
+    }
+
+    /**
+     * Find a higher tier item by crafting input in a 3x3 or 2x2 grid.
+     */
+    private static HigherTier findHigherTier(World world, ItemStack input) {
+        // Try 3x3
+        HigherTier result = tryCompact(world, input, 3);
+        if (result != null) return result;
+        // Try 2x2
+        return tryCompact(world, input, 2);
+    }
+
+    private static HigherTier tryCompact(World world, ItemStack input, int gridSize) {
+        FakeContainer container = new FakeContainer(gridSize);
+        for (int i = 0; i < gridSize * gridSize; i++) {
+            container.setInventorySlotContents(i, input.copy());
+        }
+
+        IRecipe recipe = CraftingManager.findMatchingRecipe(container, world);
+        if (recipe != null) {
+            ItemStack output = recipe.getRecipeOutput();
+            if (!output.isEmpty() && !BigInventoryHandler.areItemStacksEqual(output, input)) {
+                // Verify reverse recipe
+                LowerTier reverse = findLowerTier(world, output);
+                if (reverse != null && BigInventoryHandler.areItemStacksEqual(reverse.result, input)) {
+                    return new HigherTier(output.copy(), gridSize * gridSize);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find a lower tier item by putting input in a 1x1 grid (uncrafting).
+     */
+    private static LowerTier findLowerTier(World world, ItemStack input) {
+        FakeContainer container = new FakeContainer(1);
+        container.setInventorySlotContents(0, input.copy());
+
+        IRecipe recipe = CraftingManager.findMatchingRecipe(container, world);
+        if (recipe != null) {
+            ItemStack output = recipe.getRecipeOutput();
+            if (!output.isEmpty() && !BigInventoryHandler.areItemStacksEqual(output, input) && output.getCount() > 1) {
+                return new LowerTier(output.copy(), output.getCount());
+            }
+        }
+        return null;
+    }
+
+    private static class HigherTier {
+        final ItemStack result;
+        final int inputCount;
+
+        HigherTier(ItemStack result, int inputCount) {
+            this.result = result;
+            this.result.setCount(1);
+            this.inputCount = inputCount;
+        }
+    }
+
+    private static class LowerTier {
+        final ItemStack result;
+        final int count;
+
+        LowerTier(ItemStack result, int count) {
+            this.result = result.copy();
+            this.result.setCount(1);
+            this.count = count;
+        }
+    }
+
+    /**
+     * Fake crafting container for recipe lookup.
+     */
+    private static class FakeContainer extends InventoryCrafting {
+
+        private final NonNullList<ItemStack> items;
+        private final int size;
+
+        public FakeContainer(int gridSize) {
+            super(null, gridSize, gridSize);
+            this.size = gridSize * gridSize;
+            this.items = NonNullList.withSize(size, ItemStack.EMPTY);
+        }
+
+        @Override
+        public int getSizeInventory() {
+            return size;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            for (ItemStack stack : items) {
+                if (!stack.isEmpty()) return false;
+            }
+            return true;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int index) {
+            if (index < 0 || index >= size) return ItemStack.EMPTY;
+            return items.get(index);
+        }
+
+        @Override
+        public void setInventorySlotContents(int index, ItemStack stack) {
+            if (index >= 0 && index < size) {
+                items.set(index, stack);
+            }
+        }
+
+        @Override
+        public ItemStack removeStackFromSlot(int index) {
+            ItemStack stack = items.get(index);
+            items.set(index, ItemStack.EMPTY);
+            return stack;
+        }
+
+        @Override
+        public ItemStack decrStackSize(int index, int count) {
+            ItemStack stack = items.get(index);
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+            ItemStack result = stack.splitStack(count);
+            if (stack.isEmpty()) items.set(index, ItemStack.EMPTY);
+            return result;
+        }
+    }
+}

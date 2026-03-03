@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,locked=false": { "model": "functionalstoragelgeacy:storage_controller" },
+    "facing=south,locked=false": { "model": "functionalstoragelgeacy:storage_controller", "y": 180 },
+    "facing=west,locked=false": { "model": "functionalstoragelgeacy:storage_controller", "y": 270 },
+    "facing=east,locked=false": { "model": "functionalstoragelgeacy:storage_controller", "y": 90 },
+    "facing=north,locked=true": { "model": "functionalstoragelgeacy:storage_controller" },
+    "facing=south,locked=true": { "model": "functionalstoragelgeacy:storage_controller", "y": 180 },
+    "facing=west,locked=true": { "model": "functionalstoragelgeacy:storage_controller", "y": 270 },
+    "facing=east,locked=true": { "model": "functionalstoragelgeacy:storage_controller", "y": 90 }
+  }
+}

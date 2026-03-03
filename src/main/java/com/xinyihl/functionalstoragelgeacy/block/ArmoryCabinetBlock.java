@@ -1,0 +1,145 @@
+package com.xinyihl.functionalstoragelgeacy.block;
+
+import com.xinyihl.functionalstoragelgeacy.FunctionalStorageLgeacy;
+import com.xinyihl.functionalstoragelgeacy.block.tile.ArmoryCabinetTile;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+
+/**
+ * Block for the armory cabinet.
+ * Stores unstackable items. Has a simple facing property, no slot detection.
+ * Opens GUI on right-click.
+ */
+public class ArmoryCabinetBlock extends Block {
+
+    public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
+
+    public ArmoryCabinetBlock() {
+        super(Material.IRON);
+        this.setRegistryName("armory_cabinet");
+        this.setTranslationKey("functionalstoragelgeacy.armory_cabinet");
+        this.setHardness(5.0F);
+        this.setResistance(10.0F);
+        this.setCreativeTab(FunctionalStorageLgeacy.CREATIVE_TAB);
+        this.setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, FACING);
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byHorizontalIndex(meta));
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(FACING).getHorizontalIndex();
+    }
+
+    @Override
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing,
+                                            float hitX, float hitY, float hitZ, int meta,
+                                            EntityLivingBase placer, EnumHand hand) {
+        return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
+    }
+
+    @Override
+    public boolean hasTileEntity(IBlockState state) {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public TileEntity createTileEntity(World world, IBlockState state) {
+        return new ArmoryCabinetTile();
+    }
+
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+                                    EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (!worldIn.isRemote) {
+            playerIn.openGui(FunctionalStorageLgeacy.INSTANCE, 1, worldIn, pos.getX(), pos.getY(), pos.getZ());
+        }
+        return true;
+    }
+
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TileData")) {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof ArmoryCabinetTile) {
+                ((ArmoryCabinetTile) te).loadTileFromNBT(stack.getTagCompound().getCompoundTag("TileData"));
+            }
+        }
+    }
+
+    @Override
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        // Don't add default drops - handled by breakBlock
+    }
+
+    @Override
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+        if (willHarvest) return true;
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    @Override
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack) {
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
+        worldIn.setBlockToAir(pos);
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof ArmoryCabinetTile) {
+            ArmoryCabinetTile cabinet = (ArmoryCabinetTile) te;
+            ItemStack drop = new ItemStack(this);
+            if (!cabinet.isEverythingEmpty()) {
+                NBTTagCompound tileData = cabinet.saveTileToNBT();
+                if (!drop.hasTagCompound()) drop.setTagCompound(new NBTTagCompound());
+                drop.getTagCompound().setTag("TileData", tileData);
+            }
+            spawnAsEntity(worldIn, pos, drop);
+        }
+        super.breakBlock(worldIn, pos, state);
+    }
+
+    @Override
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof ArmoryCabinetTile) {
+            ArmoryCabinetTile cabinet = (ArmoryCabinetTile) te;
+            ItemStack drop = new ItemStack(this);
+            if (!cabinet.isEverythingEmpty()) {
+                NBTTagCompound tileData = cabinet.saveTileToNBT();
+                if (!drop.hasTagCompound()) drop.setTagCompound(new NBTTagCompound());
+                drop.getTagCompound().setTag("TileData", tileData);
+            }
+            return drop;
+        }
+        return new ItemStack(this);
+    }
+}
