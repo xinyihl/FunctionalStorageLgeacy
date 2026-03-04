@@ -1,21 +1,26 @@
 package com.xinyihl.functionalstoragelgeacy.block;
 
 import com.xinyihl.functionalstoragelgeacy.DrawerType;
-import com.xinyihl.functionalstoragelgeacy.FunctionalStorageLgeacy;
 import com.xinyihl.functionalstoragelgeacy.block.tile.FluidDrawerTile;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Block for fluid drawers. Supports X_1, X_2, X_4 fluid slot configurations.
@@ -70,5 +75,10 @@ public class FluidDrawerBlock extends DrawerBlock {
 
     public DrawerType getDrawerType() {
         return drawerType;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public BlockRenderLayer getRenderLayer() {
+        return BlockRenderLayer.CUTOUT;
     }
 }

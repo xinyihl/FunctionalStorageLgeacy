@@ -32,8 +32,7 @@ import java.util.List;
 public class ControllerRenderer extends TileEntitySpecialRenderer<StorageControllerTile> {
 
     @Override
-    public void render(StorageControllerTile te, double x, double y, double z,
-                       float partialTicks, int destroyStage, float alpha) {
+    public void render(StorageControllerTile te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         if (te == null || te.getWorld() == null) return;
 
         Minecraft mc = Minecraft.getMinecraft();

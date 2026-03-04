@@ -222,7 +222,7 @@ public abstract class BigFluidHandler implements IFluidHandler {
         private final java.util.function.IntSupplier capacitySupplier;
 
         public CustomFluidTank(java.util.function.IntSupplier capacitySupplier) {
-            super(0);
+            super(Integer.MAX_VALUE);
             this.capacitySupplier = capacitySupplier;
         }
 

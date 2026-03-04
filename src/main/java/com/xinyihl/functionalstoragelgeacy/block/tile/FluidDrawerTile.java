@@ -8,10 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
@@ -71,17 +69,14 @@ public class FluidDrawerTile extends ControllableDrawerTile {
                                    float hitX, float hitY, float hitZ, int slot) {
         ItemStack heldStack = player.getHeldItem(hand);
 
-        if (super.onSlotActivated(player, hand, facing, hitX, hitY, hitZ, slot)) {
-            return true;
+        if (!world.isRemote && !heldStack.isEmpty()) {
+            boolean fluidInteraction = FluidUtil.interactWithFluidHandler(player, hand, fluidHandler);
+            if (fluidInteraction) {
+                return true;
+            }
         }
 
-        if (slot != -1 && !world.isRemote && !heldStack.isEmpty()) {
-            // Try to empty fluid container into drawer
-            boolean success = FluidUtil.interactWithFluidHandler(player, hand, fluidHandler);
-            if (success) return true;
-        }
-
-        return true;
+        return super.onSlotActivated(player, hand, facing, hitX, hitY, hitZ, slot);
     }
 
     @Override
