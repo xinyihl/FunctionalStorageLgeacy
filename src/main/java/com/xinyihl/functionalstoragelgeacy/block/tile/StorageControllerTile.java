@@ -90,10 +90,6 @@ public class StorageControllerTile extends ControllableDrawerTile {
             if (player.isSneaking()) {
                 // Open GUI on sneak-click
                 player.openGui(FunctionalStorageLgeacy.INSTANCE, 0, world, pos.getX(), pos.getY(), pos.getZ());
-            } else {
-                player.sendStatusMessage(
-                        new TextComponentTranslation("gui.functionalstorage.open_gui")
-                                .setStyle(new net.minecraft.util.text.Style().setColor(TextFormatting.GRAY)), true);
             }
 
             // Insert into locked drawers first
@@ -210,11 +206,10 @@ public class StorageControllerTile extends ControllableDrawerTile {
      */
     /**
      * Get the effective controller search range.
-     * Base range from config + storage upgrade bonus / range divisor.
+     * Base range from config multiplied by range fraction from storage upgrades.
      */
     public double getControllerRange() {
-        return FunctionalStorageConfig.DRAWER_CONTROLLER_LINKING_RANGE
-                + getStorageMultiplier() / FunctionalStorageConfig.RANGE_DIVISOR;
+        return FunctionalStorageConfig.DRAWER_CONTROLLER_LINKING_RANGE * getRangeMultiplier();
     }
 
     public boolean addConnectedDrawers(LinkingToolItem.ActionMode action, BlockPos... positions) {

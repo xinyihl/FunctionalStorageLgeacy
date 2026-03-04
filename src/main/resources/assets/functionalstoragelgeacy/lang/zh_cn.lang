@@ -44,7 +44,7 @@ item.functionalstoragelgeacy.void_upgrade.name=虚空升级
 
 # Tooltips
 item.functionalstoragelgeacy.iron_downgrade.desc=减少抽屉存储容量
-item.functionalstoragelgeacy.storage_upgrade.multiplier=存储倍率：%sx
+item.functionalstoragelgeacy.storage_upgrade.multiplier=存储倍率：%s
 
 linkingtool.controller=控制器：
 linkingtool.controller.configured=已将控制器与工具连接

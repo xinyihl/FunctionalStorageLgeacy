@@ -2,6 +2,7 @@ package com.xinyihl.functionalstoragelgeacy.block.tile;
 
 import com.xinyihl.functionalstoragelgeacy.FunctionalStorageLgeacy;
 import com.xinyihl.functionalstoragelgeacy.block.DrawerBlock;
+import com.xinyihl.functionalstoragelgeacy.config.FunctionalStorageConfig;
 import com.xinyihl.functionalstoragelgeacy.item.ConfigurationToolItem;
 import com.xinyihl.functionalstoragelgeacy.item.StorageUpgradeItem;
 import com.xinyihl.functionalstoragelgeacy.item.UpgradeItem;
@@ -35,6 +36,9 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
     protected boolean isLocked = false;
     private boolean needsUpgradeCache = true;
     private float storageMultiplier = 1;
+    private float fluidMultiplier = 1;
+    private float rangeMultiplier = 1;
+    private boolean hasIronDowngrade = false;
 
     public ControllableDrawerTile() {
         this.drawerOptions = new DrawerOptions();
@@ -244,13 +248,24 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
      */
     public void recalculateUpgrades() {
         isCreative = false;
-        float mult = 1;
+        
+        float mult = 1.0f;
+        float fluidMult = 1.0f;
+        float rangeMult = 1.0f;
+        boolean iron = false;
 
         for (int i = 0; i < storageUpgrades.getSlots(); i++) {
             ItemStack stack = storageUpgrades.getStackInSlot(i);
             if (stack.getItem() instanceof StorageUpgradeItem) {
                 StorageUpgradeItem upgrade = (StorageUpgradeItem) stack.getItem();
-                mult += upgrade.getTier().getMultiplier();
+                if (upgrade.getTier() == StorageUpgradeItem.StorageTier.IRON) {
+                    iron = true;
+                } else {
+                    float tierMult = upgrade.getTier().getMultiplier();
+                    mult *= tierMult;
+                    fluidMult *= (tierMult / FunctionalStorageConfig.FLUID_DIVISOR);
+                    rangeMult *= (tierMult / FunctionalStorageConfig.RANGE_DIVISOR);
+                }
             }
             if (stack.getItem() == FunctionalStorageLgeacy.CREATIVE_VENDING_UPGRADE) {
                 isCreative = true;
@@ -264,7 +279,11 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
             }
         }
 
-        storageMultiplier = mult;
+        this.storageMultiplier = Math.max(mult, 0f);
+        this.fluidMultiplier = Math.max(fluidMult, 0f);
+        this.rangeMultiplier = Math.max(rangeMult, 0f);
+        this.hasIronDowngrade = iron;
+        
         isLocked = world != null && world.getBlockState(pos).getBlock() instanceof DrawerBlock && world.getBlockState(pos).getValue(DrawerBlock.LOCKED);
         needsUpgradeCache = false;
     }
@@ -272,6 +291,21 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
     public float getStorageMultiplier() {
         if (needsUpgradeCache) recalculateUpgrades();
         return storageMultiplier;
+    }
+
+    public float getFluidMultiplier() {
+        if (needsUpgradeCache) recalculateUpgrades();
+        return fluidMultiplier;
+    }
+
+    public float getRangeMultiplier() {
+        if (needsUpgradeCache) recalculateUpgrades();
+        return rangeMultiplier;
+    }
+
+    public boolean hasIronDowngrade() {
+        if (needsUpgradeCache) recalculateUpgrades();
+        return hasIronDowngrade;
     }
 
     public boolean isCreative() {

@@ -52,7 +52,8 @@ public class DrawerTile extends ControllableDrawerTile {
 
             @Override
             public float getMultiplier() {
-                return DrawerTile.this.getStorageMultiplier();
+                float baseSize = DrawerTile.this.hasIronDowngrade() ? 1.0f : DrawerTile.this.drawerType.getSlotAmount();
+                return baseSize * DrawerTile.this.getStorageMultiplier();
             }
 
             @Override
@@ -111,7 +112,7 @@ public class DrawerTile extends ControllableDrawerTile {
             }
 
             // Double-click fast insert from inventory
-            if (System.currentTimeMillis() - INTERACTION_LOGGER.getOrDefault(player.getUniqueID(), System.currentTimeMillis()) < 300) {
+            if (System.currentTimeMillis() - INTERACTION_LOGGER.getOrDefault(player.getUniqueID(), System.currentTimeMillis()) < 300 && (isLocked() || !handler.getStackInSlot(0).isEmpty())) {
                 for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
                     ItemStack invStack = player.inventory.getStackInSlot(i);
                     if (!invStack.isEmpty()) {

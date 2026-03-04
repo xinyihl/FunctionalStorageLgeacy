@@ -45,7 +45,8 @@ public class FluidDrawerTile extends ControllableDrawerTile {
 
             @Override
             public float getMultiplier() {
-                return FluidDrawerTile.this.getStorageMultiplier();
+                float baseSize = FluidDrawerTile.this.hasIronDowngrade() ? 1.0f : FluidDrawerTile.this.drawerType.getSlotAmount();
+                return baseSize * FluidDrawerTile.this.getFluidMultiplier();
             }
 
             @Override

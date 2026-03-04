@@ -50,7 +50,8 @@ public class CompactingDrawerTile extends ControllableDrawerTile {
 
             @Override
             public float getMultiplier() {
-                return CompactingDrawerTile.this.getStorageMultiplier();
+                float baseSize = CompactingDrawerTile.this.hasIronDowngrade() ? 1.0f : 8.0f;
+                return baseSize * CompactingDrawerTile.this.getStorageMultiplier();
             }
 
             @Override
@@ -135,7 +136,7 @@ public class CompactingDrawerTile extends ControllableDrawerTile {
             }
 
             // Double-click fast insert
-            if (System.currentTimeMillis() - INTERACTION_LOGGER.getOrDefault(player.getUniqueID(), System.currentTimeMillis()) < 300) {
+            if (System.currentTimeMillis() - INTERACTION_LOGGER.getOrDefault(player.getUniqueID(), System.currentTimeMillis()) < 300 && (isLocked() || !handler.getStackInSlot(0).isEmpty())) {
                 for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
                     ItemStack invStack = player.inventory.getStackInSlot(i);
                     if (!invStack.isEmpty()) {

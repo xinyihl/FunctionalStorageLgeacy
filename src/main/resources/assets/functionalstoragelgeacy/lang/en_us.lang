@@ -53,7 +53,7 @@ item.functionalstoragelgeacy.linking_tool.name=Linking Tool
 
 # Tooltips
 item.functionalstoragelgeacy.iron_downgrade.desc=Reduces drawer storage capacity
-item.functionalstoragelgeacy.storage_upgrade.multiplier=Storage Multiplier: %sx
+item.functionalstoragelgeacy.storage_upgrade.multiplier=Storage Multiplier: %s
 
 # Linking Tool Messages
 linkingtool.controller.configured=Controller position saved!
