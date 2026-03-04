@@ -10,11 +10,7 @@ import com.xinyihl.functionalstoragelgeacy.util.NumberUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -22,6 +18,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
@@ -49,7 +46,7 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
         int ambLight = te.getWorld().getCombinedLight(te.getPos().offset(facing), 0);
         int lu = ambLight % 65536;
         int lv = ambLight / 65536;
-        net.minecraft.client.renderer.OpenGlHelper.setLightmapTextureCoords(net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit, (float)lu / 1.0F, (float)lv / 1.0F);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)lu / 1.0F, (float)lv / 1.0F);
 
         setupFaceTransform(facing);
 
@@ -79,7 +76,7 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
         GlStateManager.popMatrix();
     }
 
-    private static final net.minecraft.util.ResourceLocation LOCK_TEXTURE = new net.minecraft.util.ResourceLocation("functionalstoragelgeacy", "textures/blocks/lock.png");
+    private static final ResourceLocation LOCK_TEXTURE = new ResourceLocation("functionalstoragelgeacy", "textures/blocks/lock.png");
 
     private void renderLockOnFace(ControllableDrawerTile te) {
         if (!te.isLocked()) return;
