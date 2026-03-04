@@ -1,16 +1,21 @@
 package com.xinyihl.functionalstoragelgeacy.block;
 
 import com.xinyihl.functionalstoragelgeacy.DrawerType;
+import com.xinyihl.functionalstoragelgeacy.FunctionalStorageLgeacy;
 import com.xinyihl.functionalstoragelgeacy.block.tile.EnderDrawerTile;
+import com.xinyihl.functionalstoragelgeacy.item.LinkingToolItem;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -69,5 +74,19 @@ public class EnderDrawerBlock extends DrawerBlock {
     @Override
     public DrawerType getDrawerType() {
         return DrawerType.X_1;
+    }
+
+    @Override
+    public void onBlockClicked(World world, BlockPos pos, EntityPlayer player)
+    {
+        super.onBlockClicked(world, pos, player);
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof EnderDrawerTile && !player.world.isRemote) {
+            ItemStack stack = player.getHeldItemMainhand();
+            if (stack.getItem() == FunctionalStorageLgeacy.LINKING_TOOL) {
+                LinkingToolItem.setEnderFrequency(stack, ((EnderDrawerTile) te).getFrequency());
+                player.sendStatusMessage(new TextComponentTranslation("linkingtool.ender.stored").setStyle(new net.minecraft.util.text.Style().setColor(TextFormatting.AQUA)), true);
+            }
+        }
     }
 }

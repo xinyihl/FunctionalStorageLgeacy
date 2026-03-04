@@ -497,8 +497,7 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
      * Indicator modes (from ConfigurationAction.INDICATOR):
      * 0 = Off, 1 = Progress bar always, 2 = Only when full, 3 = Only when full (no background)
      */
-    private void renderIndicator(float posX, float posY, float slotScale, float progress,
-                                 ControllableDrawerTile.DrawerOptions options) {
+    private void renderIndicator(float posX, float posY, float slotScale, float progress, ControllableDrawerTile.DrawerOptions options) {
         if (options == null) return;
         int indicatorValue = options.getAdvancedValue(ConfigurationToolItem.ConfigurationAction.INDICATOR);
         if (indicatorValue == 0) return;
@@ -580,8 +579,9 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
             ItemStack upgradeStack = te.getStorageUpgrades().getStackInSlot(i);
             if (!upgradeStack.isEmpty()) {
                 GlStateManager.pushMatrix();
-                GlStateManager.translate(baseX + iconIndex * iconScale * 16, baseY, zOffset);
-                GlStateManager.scale(iconScale, iconScale, 0.00001f);
+                // Flip Y scale to match GUI expectation and fix winding order (so it's visible from the front)
+                GlStateManager.translate(baseX + iconIndex * iconScale * 16, baseY + iconScale * 16, zOffset);
+                GlStateManager.scale(iconScale, -iconScale, 0.00001f);
 
                 RenderHelper.enableStandardItemLighting();
                 GlStateManager.enableRescaleNormal();
@@ -599,8 +599,8 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
         // Void upgrade icon at bottom-right
         if (te.isVoid()) {
             GlStateManager.pushMatrix();
-            GlStateManager.translate(baseX + iconIndex * iconScale * 16, baseY, zOffset);
-            GlStateManager.scale(iconScale, iconScale, 0.00001f);
+            GlStateManager.translate(1.0f - baseX - iconScale * 16, baseY + iconScale * 16, zOffset);
+            GlStateManager.scale(iconScale, -iconScale, 0.00001f);
 
             RenderHelper.enableStandardItemLighting();
             GlStateManager.enableRescaleNormal();

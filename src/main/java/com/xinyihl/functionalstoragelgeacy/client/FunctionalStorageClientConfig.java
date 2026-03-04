@@ -16,10 +16,6 @@ public class FunctionalStorageClientConfig {
     @Config.RangeInt(min = 1, max = 128)
     public static int DRAWER_RENDER_RANGE = 16;
 
-    @Config.Comment("The thickness of 3D item/block displays on drawer faces (default: 0.125)")
-    @Config.RangeDouble(min = 0.05, max = 0.75)
-    public static double DRAWER_RENDER_THICKNESS = 0.125;
-
     @Mod.EventBusSubscriber(modid = Tags.MOD_ID, value = Side.CLIENT)
     public static class ConfigSyncHandler {
         @SubscribeEvent

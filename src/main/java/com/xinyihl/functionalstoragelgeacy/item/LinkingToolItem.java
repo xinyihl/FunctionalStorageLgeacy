@@ -221,24 +221,12 @@ public class LinkingToolItem extends Item {
         return false;
     }
 
-    @Override
-    public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
-        TileEntity te = player.world.getTileEntity(pos);
-        if (te instanceof EnderDrawerTile && !player.world.isRemote) {
-            setEnderFrequency(itemstack, ((EnderDrawerTile) te).getFrequency());
-            player.sendStatusMessage(new TextComponentTranslation("linkingtool.ender.stored")
-                    .setStyle(new net.minecraft.util.text.Style().setColor(TextFormatting.AQUA)), true);
-            return true;
-        }
-        return false;
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         if (getEnderFrequency(stack) != null) {
-            tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("linkingtool.ender.frequency").getUnformattedText());
+            tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("linkingtool.ender.frequency").getUnformattedText() + getEnderFrequency(stack));
             tooltip.add("");
             tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("linkingtool.ender.clear").getUnformattedText());
         } else {
