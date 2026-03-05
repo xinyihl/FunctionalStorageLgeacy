@@ -6,18 +6,28 @@ import com.xinyihl.functionalstoragelgeacy.block.tile.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelgeacy.block.tile.DrawerTile;
 import com.xinyihl.functionalstoragelgeacy.block.tile.EnderDrawerTile;
 import com.xinyihl.functionalstoragelgeacy.block.tile.FluidDrawerTile;
+import com.xinyihl.functionalstoragelgeacy.block.tile.StorageControllerTile;
 import com.xinyihl.functionalstoragelgeacy.inventory.BigInventoryHandler;
 import com.xinyihl.functionalstoragelgeacy.inventory.CompactingInventoryHandler;
+import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.IProbeInfoProvider;
+import mcjty.theoneprobe.api.NumberFormat;
 import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.theoneprobe.api.TextStyleClass;
+import mcjty.theoneprobe.config.Config;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import net.minecraftforge.items.IItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +51,20 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
         return String.format("%.1fk", amount / 1000.0).replace(".0k", "k");
     }
 
+    private long safeAmount(long value) {
+        return Math.max(0L, value);
+    }
+
+    private long safeCapacity(long value) {
+        return Math.max(1L, value);
+    }
+
+    private ItemStack iconStack(ItemStack source) {
+        ItemStack display = source.copy();
+        display.setCount(1);
+        return display;
+    }
+
     @Override
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
         TileEntity te = world.getTileEntity(data.getPos());
@@ -48,48 +72,205 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
             return;
         }
 
-        List<String> storedLines = new ArrayList<>();
+        List<ItemEntry> items = collectItems(te);
+        List<FluidEntry> fluids = collectFluids(te);
+
+        if (items.isEmpty() && fluids.isEmpty()) {
+            return;
+        }
+
+        if (mode == ProbeMode.EXTENDED) {
+            renderExtendedItems(probeInfo, items);
+            renderExtendedFluids(probeInfo, fluids);
+            renderDrawerFlags(probeInfo, (ControllableDrawerTile) te);
+        } else {
+            renderCompactItems(probeInfo, items);
+            renderCompactFluids(probeInfo, fluids);
+        }
+    }
+
+    private List<ItemEntry> collectItems(TileEntity te) {
+        List<ItemEntry> items = new ArrayList<>();
 
         if (te instanceof DrawerTile) {
             BigInventoryHandler handler = ((DrawerTile) te).getHandler();
             for (int i = 0; i < handler.getSlotCount(); i++) {
                 BigInventoryHandler.BigStack big = handler.getBigStack(i);
-                if (big.getStack().isEmpty() || big.getAmount() <= 0) continue;
-                storedLines.add(big.getStack().getDisplayName() + "x" + big.getAmount());
-            }
-        } else if (te instanceof EnderDrawerTile) {
-            EnderDrawerTile drawer = (EnderDrawerTile) te;
-            if (drawer.getItemHandler() != null) {
-                for (int i = 0; i < drawer.getItemHandler().getSlots(); i++) {
-                    ItemStack stack = drawer.getItemHandler().getStackInSlot(i);
-                    if (stack.isEmpty() || stack.getCount() <= 0) continue;
-                    storedLines.add(stack.getDisplayName() + "x" + stack.getCount());
+                if (!big.getStack().isEmpty() && big.getAmount() > 0) {
+                    items.add(new ItemEntry(iconStack(big.getStack()), safeAmount(big.getAmount()), safeCapacity(handler.getSlotLimit(i))));
                 }
             }
-        } else if (te instanceof CompactingDrawerTile) {
-            CompactingInventoryHandler handler = ((CompactingDrawerTile) te).getHandler();
+            return items;
+        }
+
+        if (te instanceof EnderDrawerTile) {
+            IItemHandler itemHandler = ((EnderDrawerTile) te).getItemHandler();
+            if (itemHandler instanceof BigInventoryHandler) {
+                BigInventoryHandler handler = (BigInventoryHandler) itemHandler;
+                for (int i = 0; i < handler.getSlotCount(); i++) {
+                    BigInventoryHandler.BigStack big = handler.getBigStack(i);
+                    if (!big.getStack().isEmpty() && big.getAmount() > 0) {
+                        items.add(new ItemEntry(iconStack(big.getStack()), safeAmount(big.getAmount()), safeCapacity(handler.getSlotLimit(i))));
+                    }
+                }
+            }
+            return items;
+        }
+
+        if (te instanceof CompactingDrawerTile) {
+            CompactingInventoryHandler handler = ((CompactingDrawerTile) te).getCompactingHandler();
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack stack = handler.getStackInSlot(i);
-                if (stack.isEmpty() || stack.getCount() <= 0) continue;
-                storedLines.add(stack.getDisplayName() + "x" + stack.getCount());
+                if (!stack.isEmpty() && stack.getCount() > 0) {
+                    items.add(new ItemEntry(iconStack(stack), safeAmount(stack.getCount()), safeCapacity(handler.getSlotLimit(i))));
+                }
+            }
+            return items;
+        }
+
+        if (te instanceof StorageControllerTile) {
+            IItemHandler handler = ((StorageControllerTile) te).getItemHandler();
+            for (int i = 0; i < handler.getSlots(); i++) {
+                ItemStack stack = handler.getStackInSlot(i);
+                if (!stack.isEmpty() && stack.getCount() > 0) {
+                    items.add(new ItemEntry(iconStack(stack), safeAmount(stack.getCount()), safeCapacity(handler.getSlotLimit(i))));
+                }
             }
         }
 
-        if (te instanceof FluidDrawerTile) {
-            FluidDrawerTile fluidDrawer = (FluidDrawerTile) te;
-            for (int i = 0; i < fluidDrawer.getFluidHandler().getTanksCount(); i++) {
-                FluidStack fluid = fluidDrawer.getFluidHandler().getTankFluid(i);
-                if (fluid == null || fluid.amount <= 0) continue;
-                storedLines.add(fluid.getLocalizedName() + "x" + formatCompact(fluid.amount));
+        return items;
+    }
+
+    private List<FluidEntry> collectFluids(TileEntity te) {
+        List<FluidEntry> fluids = new ArrayList<>();
+
+        IFluidHandler fluidHandler = getFluidHandler(te);
+        if (fluidHandler == null) {
+            return fluids;
+        }
+
+        IFluidTankProperties[] properties = fluidHandler.getTankProperties();
+        for (IFluidTankProperties property : properties) {
+            FluidStack fluid = property.getContents();
+            if (fluid != null && fluid.amount > 0) {
+                long amount = safeAmount(fluid.amount);
+                long capacity = safeCapacity(property.getCapacity());
+                fluids.add(new FluidEntry(fluid.getLocalizedName(), amount, capacity));
             }
         }
 
-        if (!storedLines.isEmpty()) {
-            probeInfo.text(i18n("stored"));
-            for (String line : storedLines) {
-                probeInfo.text(line);
-            }
+        return fluids;
+    }
+
+    private IFluidHandler getFluidHandler(TileEntity te) {
+        Capability<IFluidHandler> fluidCap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+        if (te.hasCapability(fluidCap, null)) {
+            return te.getCapability(fluidCap, null);
+        }
+        return null;
+    }
+
+    private void renderExtendedItems(IProbeInfo probeInfo, List<ItemEntry> items) {
+        if (items.isEmpty()) {
+            return;
         }
 
+        probeInfo.text(TextStyleClass.LABEL + i18n("stored"));
+        IProbeInfo vertical = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(Config.chestContentsBorderColor).spacing(0));
+        for (ItemEntry item : items) {
+            vertical.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER))
+                    .item(item.stack)
+                    .vertical(probeInfo.defaultLayoutStyle().spacing(0))
+                    .itemLabel(item.stack)
+                    .text(TextStyleClass.INFO + "[" + formatCompact(item.amount) + " / " + formatCompact(item.capacity) + "]");
+        }
+    }
+
+    private void renderExtendedFluids(IProbeInfo probeInfo, List<FluidEntry> fluids) {
+        if (fluids.isEmpty()) {
+            return;
+        }
+
+        probeInfo.text(TextStyleClass.LABEL + "Fluids");
+        IProbeInfo vertical = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(Config.chestContentsBorderColor).spacing(0));
+        for (FluidEntry fluid : fluids) {
+            vertical.text(TextStyleClass.INFO + fluid.name + " [" + formatCompact(fluid.amount) + " / " + formatCompact(fluid.capacity) + " mB]")
+                    .progress(fluid.amount, fluid.capacity,
+                            probeInfo.defaultProgressStyle()
+                                    .numberFormat(NumberFormat.COMPACT)
+                                    .suffix(" mB")
+                    );
+        }
+    }
+
+    private void renderCompactItems(IProbeInfo probeInfo, List<ItemEntry> items) {
+        if (items.isEmpty()) {
+            return;
+        }
+
+        probeInfo.text(i18n("stored"));
+        int maxLines = Math.min(4, items.size());
+        for (int i = 0; i < maxLines; i++) {
+            ItemEntry item = items.get(i);
+            probeInfo.text(item.stack.getDisplayName() + " x " + formatCompact(item.amount));
+        }
+        if (items.size() > maxLines) {
+            probeInfo.text(TextStyleClass.INFO + "+" + (items.size() - maxLines) + " more");
+        }
+    }
+
+    private void renderCompactFluids(IProbeInfo probeInfo, List<FluidEntry> fluids) {
+        if (fluids.isEmpty()) {
+            return;
+        }
+
+        int maxLines = Math.min(3, fluids.size());
+        for (int i = 0; i < maxLines; i++) {
+            FluidEntry fluid = fluids.get(i);
+            probeInfo.text(fluid.name + " x " + formatCompact(fluid.amount) + " mB");
+        }
+        if (fluids.size() > maxLines) {
+            probeInfo.text(TextStyleClass.INFO + "+" + (fluids.size() - maxLines) + " more fluids");
+        }
+    }
+
+    private void renderDrawerFlags(IProbeInfo probeInfo, ControllableDrawerTile drawer) {
+        List<String> states = new ArrayList<>();
+        if (drawer.isLocked()) {
+            states.add("Locked");
+        }
+        if (drawer.isVoid()) {
+            states.add("Void");
+        }
+        if (drawer.isCreative()) {
+            states.add("Creative");
+        }
+        if (!states.isEmpty()) {
+            probeInfo.text(TextStyleClass.INFOIMP + String.join(" | ", states));
+        }
+    }
+
+    private static class ItemEntry {
+        private final ItemStack stack;
+        private final long amount;
+        private final long capacity;
+
+        private ItemEntry(ItemStack stack, long amount, long capacity) {
+            this.stack = stack;
+            this.amount = amount;
+            this.capacity = capacity;
+        }
+    }
+
+    private static class FluidEntry {
+        private final String name;
+        private final long amount;
+        private final long capacity;
+
+        private FluidEntry(String name, long amount, long capacity) {
+            this.name = name;
+            this.amount = amount;
+            this.capacity = capacity;
+        }
     }
 }

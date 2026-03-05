@@ -23,7 +23,7 @@ public class FunctionalStorageConfig {
     public static int NETHERITE_MULTIPLIER = 32;
     public static int FLUID_DIVISOR = 2;
     public static int RANGE_DIVISOR = 4;
-    public static boolean ENABLE_TOP_COMPATIBILITY = false;
+    public static boolean ENABLE_TOP_COMPATIBILITY = true;
 
     public static void init(File configFile) {
         Configuration config = new Configuration(configFile);
@@ -37,7 +37,7 @@ public class FunctionalStorageConfig {
         UPGRADE_PUSH_ITEMS = config.getInt("upgradePushItems", "general", 4, 1, 64, "How many items the pushing upgrade will try to push");
         UPGRADE_PUSH_FLUID = config.getInt("upgradePushFluid", "general", 500, 1, 10000, "How much fluid (in mb) the pushing upgrade will try to push");
         UPGRADE_COLLECTOR_ITEMS = config.getInt("upgradeCollectorItems", "general", 4, 1, 64, "How many items the collector upgrade will try to pull");
-        ENABLE_TOP_COMPATIBILITY = config.getBoolean("enableTOPCompatibility", "compatibility", false, "Enable The One Probe compatibility integration");
+        ENABLE_TOP_COMPATIBILITY = config.getBoolean("enableTOPCompatibility", "compatibility", true, "Enable The One Probe compatibility integration");
 
         COPPER_MULTIPLIER = config.getInt("copperMultiplier", "storage", 8, 1, 1024, "Copper Upgrade storage multiplier");
         GOLD_MULTIPLIER = config.getInt("goldMultiplier", "storage", 16, 1, 1024, "Gold Upgrade storage multiplier");

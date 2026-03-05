@@ -95,28 +95,8 @@ public class FunctionalStorageLgeacy {
     public void preInit(FMLPreInitializationEvent event) {
         FunctionalStorageConfig.init(event.getSuggestedConfigurationFile());
         TheOneProbeCompat.register();
-
         NetworkHandler.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
-
-        // Register TileEntities
-        GameRegistry.registerTileEntity(DrawerTile.class,
-                new ResourceLocation(Tags.MOD_ID, "drawer"));
-        GameRegistry.registerTileEntity(CompactingDrawerTile.class,
-                new ResourceLocation(Tags.MOD_ID, "compacting_drawer"));
-        GameRegistry.registerTileEntity(SimpleCompactingDrawerTile.class,
-                new ResourceLocation(Tags.MOD_ID, "simple_compacting_drawer"));
-        GameRegistry.registerTileEntity(FluidDrawerTile.class,
-                new ResourceLocation(Tags.MOD_ID, "fluid_drawer"));
-        GameRegistry.registerTileEntity(EnderDrawerTile.class,
-                new ResourceLocation(Tags.MOD_ID, "ender_drawer"));
-        GameRegistry.registerTileEntity(ArmoryCabinetTile.class,
-                new ResourceLocation(Tags.MOD_ID, "armory_cabinet"));
-        GameRegistry.registerTileEntity(StorageControllerTile.class,
-                new ResourceLocation(Tags.MOD_ID, "storage_controller"));
-        GameRegistry.registerTileEntity(ControllerExtensionTile.class,
-                new ResourceLocation(Tags.MOD_ID, "controller_extension"));
-
         proxy.preInit(event);
     }
 
