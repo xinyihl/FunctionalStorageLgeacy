@@ -1,21 +1,10 @@
 package com.xinyihl.functionalstoragelgeacy.compat.top;
 
 import com.xinyihl.functionalstoragelgeacy.Tags;
-import com.xinyihl.functionalstoragelgeacy.block.tile.CompactingDrawerTile;
-import com.xinyihl.functionalstoragelgeacy.block.tile.ControllableDrawerTile;
-import com.xinyihl.functionalstoragelgeacy.block.tile.DrawerTile;
-import com.xinyihl.functionalstoragelgeacy.block.tile.EnderDrawerTile;
-import com.xinyihl.functionalstoragelgeacy.block.tile.FluidDrawerTile;
-import com.xinyihl.functionalstoragelgeacy.block.tile.StorageControllerTile;
+import com.xinyihl.functionalstoragelgeacy.block.tile.*;
 import com.xinyihl.functionalstoragelgeacy.inventory.BigInventoryHandler;
 import com.xinyihl.functionalstoragelgeacy.inventory.CompactingInventoryHandler;
-import mcjty.theoneprobe.api.ElementAlignment;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.IProbeInfoProvider;
-import mcjty.theoneprobe.api.NumberFormat;
-import mcjty.theoneprobe.api.ProbeMode;
-import mcjty.theoneprobe.api.TextStyleClass;
+import mcjty.theoneprobe.api.*;
 import mcjty.theoneprobe.config.Config;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -79,14 +68,9 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
             return;
         }
 
-        if (mode == ProbeMode.EXTENDED) {
-            renderExtendedItems(probeInfo, items);
-            renderExtendedFluids(probeInfo, fluids);
-            renderDrawerFlags(probeInfo, (ControllableDrawerTile) te);
-        } else {
-            renderCompactItems(probeInfo, items);
-            renderCompactFluids(probeInfo, fluids);
-        }
+        renderExtendedItems(probeInfo, items);
+        renderExtendedFluids(probeInfo, fluids);
+        renderDrawerFlags(probeInfo, (ControllableDrawerTile) te);
     }
 
     private List<ItemEntry> collectItems(TileEntity te) {
@@ -182,7 +166,7 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
                     .item(item.stack)
                     .vertical(probeInfo.defaultLayoutStyle().spacing(0))
                     .itemLabel(item.stack)
-                    .text(TextStyleClass.INFO + "[" + formatCompact(item.amount) + " / " + formatCompact(item.capacity) + "]");
+                    .text(TextStyleClass.INFO + formatCompact(item.amount) + " / " + formatCompact(item.capacity));
         }
     }
 
@@ -191,46 +175,15 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
             return;
         }
 
-        probeInfo.text(TextStyleClass.LABEL + "Fluids");
+        probeInfo.text(TextStyleClass.LABEL + i18n("stored"));
         IProbeInfo vertical = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(Config.chestContentsBorderColor).spacing(0));
         for (FluidEntry fluid : fluids) {
-            vertical.text(TextStyleClass.INFO + fluid.name + " [" + formatCompact(fluid.amount) + " / " + formatCompact(fluid.capacity) + " mB]")
+            vertical.text(TextStyleClass.INFO + fluid.name + " " + formatCompact(fluid.amount) + " / " + formatCompact(fluid.capacity) + " mB")
                     .progress(fluid.amount, fluid.capacity,
                             probeInfo.defaultProgressStyle()
                                     .numberFormat(NumberFormat.COMPACT)
                                     .suffix(" mB")
                     );
-        }
-    }
-
-    private void renderCompactItems(IProbeInfo probeInfo, List<ItemEntry> items) {
-        if (items.isEmpty()) {
-            return;
-        }
-
-        probeInfo.text(i18n("stored"));
-        int maxLines = Math.min(4, items.size());
-        for (int i = 0; i < maxLines; i++) {
-            ItemEntry item = items.get(i);
-            probeInfo.text(item.stack.getDisplayName() + " x " + formatCompact(item.amount));
-        }
-        if (items.size() > maxLines) {
-            probeInfo.text(TextStyleClass.INFO + "+" + (items.size() - maxLines) + " more");
-        }
-    }
-
-    private void renderCompactFluids(IProbeInfo probeInfo, List<FluidEntry> fluids) {
-        if (fluids.isEmpty()) {
-            return;
-        }
-
-        int maxLines = Math.min(3, fluids.size());
-        for (int i = 0; i < maxLines; i++) {
-            FluidEntry fluid = fluids.get(i);
-            probeInfo.text(fluid.name + " x " + formatCompact(fluid.amount) + " mB");
-        }
-        if (fluids.size() > maxLines) {
-            probeInfo.text(TextStyleClass.INFO + "+" + (fluids.size() - maxLines) + " more fluids");
         }
     }
 
