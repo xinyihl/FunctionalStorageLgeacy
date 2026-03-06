@@ -31,7 +31,6 @@ public class EnderSavedData extends WorldSavedData {
     public static EnderSavedData getInstance(World world) {
         MapStorage storage = world.getMapStorage();
         if (storage == null) {
-            // Fallback - shouldn't happen normally
             return new EnderSavedData();
         }
         EnderSavedData instance = (EnderSavedData) storage.getOrLoadData(EnderSavedData.class, DATA_NAME);

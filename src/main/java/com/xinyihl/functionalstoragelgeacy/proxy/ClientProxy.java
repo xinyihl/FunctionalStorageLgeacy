@@ -71,13 +71,11 @@ public class ClientProxy extends CommonProxy {
         }
 
         private static void registerBlockModel(Block block) {
-            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0,
-                    new ModelResourceLocation(Objects.requireNonNull(block.getRegistryName()), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(Objects.requireNonNull(block.getRegistryName()), "inventory"));
         }
 
         private static void registerItemModel(Item item) {
-            ModelLoader.setCustomModelResourceLocation(item, 0,
-                    new ModelResourceLocation(Objects.requireNonNull(item.getRegistryName()), "inventory"));
+            ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Objects.requireNonNull(item.getRegistryName()), "inventory"));
         }
     }
 }

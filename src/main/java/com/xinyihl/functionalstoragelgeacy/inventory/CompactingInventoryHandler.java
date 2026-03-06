@@ -33,6 +33,12 @@ public abstract class CompactingInventoryHandler implements IItemHandler, ILocka
         return slots;
     }
 
+    public boolean canDoubleClickSlot(int slot) {
+        if (slot >= slots) return false;
+        Result result = results.get(slot);
+        return isLocked() || !result.getStack().isEmpty();
+    }
+
     @Nonnull
     @Override
     public ItemStack getStackInSlot(int slot) {

@@ -1,6 +1,5 @@
 package com.xinyihl.functionalstoragelgeacy.item;
 
-import com.xinyihl.functionalstoragelgeacy.FunctionalStorageLgeacy;
 import com.xinyihl.functionalstoragelgeacy.config.FunctionalStorageConfig;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -42,8 +41,7 @@ public class StorageUpgradeItem extends UpgradeItem {
         if (tier == StorageTier.IRON) {
             tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("item.functionalstoragelgeacy.iron_downgrade.desc").getUnformattedText());
         } else {
-            tooltip.add(TextFormatting.YELLOW + new TextComponentTranslation("item.functionalstoragelgeacy.storage_upgrade.multiplier",
-                    TextFormatting.WHITE + "" + tier.getMultiplier() + "x").getUnformattedText());
+            tooltip.add(TextFormatting.YELLOW + new TextComponentTranslation("item.functionalstoragelgeacy.storage_upgrade.multiplier", TextFormatting.WHITE + "" + tier.getMultiplier() + "x").getUnformattedText());
         }
     }
 

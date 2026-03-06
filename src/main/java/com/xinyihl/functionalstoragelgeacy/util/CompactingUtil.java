@@ -19,15 +19,94 @@ import java.util.List;
 public class CompactingUtil {
 
     /**
-     * Find compacting results for a given item.
-     * Returns a list of Result from highest tier to lowest tier (base item last).
+     * Find compacting results anchored to a clicked slot.
+     * The clicked slot will always display the clicked item, slots to the left become higher tiers,
+     * and slots to the right become lower tiers. Remaining slots are empty.
      *
-     * @param world The world instance for recipe lookup
-     * @param stack The item to find compacting recipes for
-     * @param maxSlots Maximum number of tiers (2 or 3)
+     * @param world       The world instance for recipe lookup
+     * @param stack       The item to find compacting recipes for
+     * @param maxSlots    Maximum number of tiers (2 or 3)
+     * @param clickedSlot The slot index that was clicked (0-based)
      * @return List of compacting tiers
      */
-    public static List<CompactingInventoryHandler.Result> getCompactingResults(World world, ItemStack stack, int maxSlots) {
+    public static List<CompactingInventoryHandler.Result> getCompactingResults(World world, ItemStack stack, int maxSlots, int clickedSlot) {
+        List<CompactingInventoryHandler.Result> fallback = getCompactingResults(world, stack, maxSlots);
+        if (clickedSlot < 0 || clickedSlot >= maxSlots || stack.isEmpty()) {
+            return fallback;
+        }
+
+        int maxHigher = clickedSlot;
+        int maxLower = maxSlots - clickedSlot - 1;
+
+        List<HigherTier> higherTiers = new ArrayList<>();
+        ItemStack searching = stack.copy();
+        searching.setCount(1);
+        for (int i = 0; i < maxHigher; i++) {
+            HigherTier higher = findHigherTier(world, searching);
+            if (higher == null) {
+                break;
+            }
+            higherTiers.add(higher);
+            searching = higher.result.copy();
+        }
+
+        List<LowerTier> lowerTiers = new ArrayList<>();
+        searching = stack.copy();
+        searching.setCount(1);
+        for (int i = 0; i < maxLower; i++) {
+            LowerTier lower = findLowerTier(world, searching);
+            if (lower == null) {
+                break;
+            }
+            lowerTiers.add(lower);
+            searching = lower.result.copy();
+        }
+
+        List<CompactingInventoryHandler.Result> anchored = new ArrayList<>();
+        for (int i = 0; i < maxSlots; i++) {
+            anchored.add(new CompactingInventoryHandler.Result(ItemStack.EMPTY, 1));
+        }
+
+        int clickedNeeded = 1;
+        for (LowerTier lower : lowerTiers) {
+            clickedNeeded *= lower.count;
+        }
+
+        ItemStack clickedStack = stack.copy();
+        clickedStack.setCount(1);
+        anchored.set(clickedSlot, new CompactingInventoryHandler.Result(clickedStack, clickedNeeded));
+
+        int higherNeeded = clickedNeeded;
+        for (int i = 0; i < higherTiers.size(); i++) {
+            HigherTier higher = higherTiers.get(i);
+            higherNeeded *= higher.inputCount;
+            int targetSlot = clickedSlot - 1 - i;
+            if (targetSlot < 0) {
+                break;
+            }
+            anchored.set(targetSlot, new CompactingInventoryHandler.Result(higher.result.copy(), higherNeeded));
+        }
+
+        int lowerNeeded = clickedNeeded;
+        for (int i = 0; i < lowerTiers.size(); i++) {
+            LowerTier lower = lowerTiers.get(i);
+            lowerNeeded /= lower.count;
+            int targetSlot = clickedSlot + 1 + i;
+            if (targetSlot >= maxSlots) {
+                break;
+            }
+            anchored.set(targetSlot, new CompactingInventoryHandler.Result(lower.result.copy(), lowerNeeded));
+        }
+
+        return anchored;
+    }
+
+
+    /**
+     * Find compacting results for a given item.
+     * Returns a list of Result from highest tier to lowest tier (base item last).
+     */
+    private static List<CompactingInventoryHandler.Result> getCompactingResults(World world, ItemStack stack, int maxSlots) {
         List<CompactingInventoryHandler.Result> results = new ArrayList<>();
 
         // Start with the given item
@@ -102,8 +181,6 @@ public class CompactingUtil {
             if (results.size() < maxSlots) {
                 LowerTier lower = findLowerTier(world, current);
                 if (lower != null) {
-                    // Rescale all existing needed values by lower.count
-                    // then add lower tier with needed=1
                     for (CompactingInventoryHandler.Result r : results) {
                         r.setNeeded(r.getNeeded() * lower.count);
                     }
@@ -112,7 +189,6 @@ public class CompactingUtil {
             }
         }
 
-        // Ensure we have exactly maxSlots
         while (results.size() < maxSlots) {
             results.add(new CompactingInventoryHandler.Result(ItemStack.EMPTY, 1));
         }
@@ -123,93 +199,23 @@ public class CompactingUtil {
         return results;
     }
 
-    /**
-     * Find compacting results anchored to a clicked slot.
-     * The clicked slot will always display the clicked item, slots to the left become higher tiers,
-     * and slots to the right become lower tiers. Remaining slots are empty.
-     */
-    public static List<CompactingInventoryHandler.Result> getCompactingResults(World world, ItemStack stack, int maxSlots, int clickedSlot) {
-        List<CompactingInventoryHandler.Result> fallback = getCompactingResults(world, stack, maxSlots);
-        if (clickedSlot < 0 || clickedSlot >= maxSlots || stack.isEmpty()) {
-            return fallback;
-        }
-
-        int maxHigher = clickedSlot;
-        int maxLower = maxSlots - clickedSlot - 1;
-
-        List<HigherTier> higherTiers = new ArrayList<>();
-        ItemStack searching = stack.copy();
-        searching.setCount(1);
-        for (int i = 0; i < maxHigher; i++) {
-            HigherTier higher = findHigherTier(world, searching);
-            if (higher == null) {
-                break;
-            }
-            higherTiers.add(higher);
-            searching = higher.result.copy();
-        }
-
-        List<LowerTier> lowerTiers = new ArrayList<>();
-        searching = stack.copy();
-        searching.setCount(1);
-        for (int i = 0; i < maxLower; i++) {
-            LowerTier lower = findLowerTier(world, searching);
-            if (lower == null) {
-                break;
-            }
-            lowerTiers.add(lower);
-            searching = lower.result.copy();
-        }
-
-        List<CompactingInventoryHandler.Result> anchored = new ArrayList<>();
-        for (int i = 0; i < maxSlots; i++) {
-            anchored.add(new CompactingInventoryHandler.Result(ItemStack.EMPTY, 1));
-        }
-
-        // Needed values are normalized to the lowest visible tier on the right side.
-        int clickedNeeded = 1;
-        for (LowerTier lower : lowerTiers) {
-            clickedNeeded *= lower.count;
-        }
-
-        ItemStack clickedStack = stack.copy();
-        clickedStack.setCount(1);
-        anchored.set(clickedSlot, new CompactingInventoryHandler.Result(clickedStack, clickedNeeded));
-
-        int higherNeeded = clickedNeeded;
-        for (int i = 0; i < higherTiers.size(); i++) {
-            HigherTier higher = higherTiers.get(i);
-            higherNeeded *= higher.inputCount;
-            int targetSlot = clickedSlot - 1 - i;
-            if (targetSlot < 0) {
-                break;
-            }
-            anchored.set(targetSlot, new CompactingInventoryHandler.Result(higher.result.copy(), higherNeeded));
-        }
-
-        int lowerNeeded = clickedNeeded;
-        for (int i = 0; i < lowerTiers.size(); i++) {
-            LowerTier lower = lowerTiers.get(i);
-            lowerNeeded /= lower.count;
-            int targetSlot = clickedSlot + 1 + i;
-            if (targetSlot >= maxSlots) {
-                break;
-            }
-            anchored.set(targetSlot, new CompactingInventoryHandler.Result(lower.result.copy(), lowerNeeded));
-        }
-
-        return anchored;
-    }
-
-    /**
-     * Find a higher tier item by crafting input in a 3x3 or 2x2 grid.
-     */
     private static HigherTier findHigherTier(World world, ItemStack input) {
-        // Try 3x3
         HigherTier result = tryCompact(world, input, 3);
         if (result != null) return result;
-        // Try 2x2
         return tryCompact(world, input, 2);
+    }
+
+    private static LowerTier findLowerTier(World world, ItemStack input) {
+        FakeContainer container = new FakeContainer(1);
+        container.setInventorySlotContents(0, input.copy());
+        IRecipe recipe = CraftingManager.findMatchingRecipe(container, world);
+        if (recipe != null) {
+            ItemStack output = recipe.getRecipeOutput();
+            if (!output.isEmpty() && !BigInventoryHandler.areItemStacksEqual(output, input) && output.getCount() > 1) {
+                return new LowerTier(output.copy(), output.getCount());
+            }
+        }
+        return null;
     }
 
     private static HigherTier tryCompact(World world, ItemStack input, int gridSize) {
@@ -217,33 +223,14 @@ public class CompactingUtil {
         for (int i = 0; i < gridSize * gridSize; i++) {
             container.setInventorySlotContents(i, input.copy());
         }
-
         IRecipe recipe = CraftingManager.findMatchingRecipe(container, world);
         if (recipe != null) {
             ItemStack output = recipe.getRecipeOutput();
             if (!output.isEmpty() && !BigInventoryHandler.areItemStacksEqual(output, input)) {
-                // Verify reverse recipe
                 LowerTier reverse = findLowerTier(world, output);
                 if (reverse != null && BigInventoryHandler.areItemStacksEqual(reverse.result, input)) {
                     return new HigherTier(output.copy(), gridSize * gridSize);
                 }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Find a lower tier item by putting input in a 1x1 grid (uncrafting).
-     */
-    private static LowerTier findLowerTier(World world, ItemStack input) {
-        FakeContainer container = new FakeContainer(1);
-        container.setInventorySlotContents(0, input.copy());
-
-        IRecipe recipe = CraftingManager.findMatchingRecipe(container, world);
-        if (recipe != null) {
-            ItemStack output = recipe.getRecipeOutput();
-            if (!output.isEmpty() && !BigInventoryHandler.areItemStacksEqual(output, input) && output.getCount() > 1) {
-                return new LowerTier(output.copy(), output.getCount());
             }
         }
         return null;
@@ -271,9 +258,6 @@ public class CompactingUtil {
         }
     }
 
-    /**
-     * Fake crafting container for recipe lookup.
-     */
     private static class FakeContainer extends InventoryCrafting {
 
         private final NonNullList<ItemStack> items;

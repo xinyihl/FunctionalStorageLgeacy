@@ -1,14 +1,10 @@
 package com.xinyihl.functionalstoragelgeacy;
 
 import com.xinyihl.functionalstoragelgeacy.block.*;
-import com.xinyihl.functionalstoragelgeacy.block.tile.*;
+import com.xinyihl.functionalstoragelgeacy.block.tile.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelgeacy.compat.top.TheOneProbeCompat;
 import com.xinyihl.functionalstoragelgeacy.config.FunctionalStorageConfig;
-import com.xinyihl.functionalstoragelgeacy.item.ConfigurationToolItem;
-import com.xinyihl.functionalstoragelgeacy.item.DrawerItemBlock;
-import com.xinyihl.functionalstoragelgeacy.item.LinkingToolItem;
-import com.xinyihl.functionalstoragelgeacy.item.StorageUpgradeItem;
-import com.xinyihl.functionalstoragelgeacy.item.UpgradeItem;
+import com.xinyihl.functionalstoragelgeacy.item.*;
 import com.xinyihl.functionalstoragelgeacy.network.NetworkHandler;
 import com.xinyihl.functionalstoragelgeacy.proxy.CommonProxy;
 import com.xinyihl.functionalstoragelgeacy.util.DrawerWoodType;
@@ -20,7 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
@@ -32,7 +27,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -45,9 +39,9 @@ public class FunctionalStorageLgeacy {
     @Mod.Instance(Tags.MOD_ID)
     public static FunctionalStorageLgeacy INSTANCE;
 
-    @SidedProxy(clientSide = "com.xinyihl.functionalstoragelgeacy.proxy.ClientProxy",
-            serverSide = "com.xinyihl.functionalstoragelgeacy.proxy.CommonProxy")
-    public static CommonProxy proxy;
+    // ====== Blocks ======
+    // Wood drawers
+    public static final List<WoodDrawerBlock> WOOD_DRAWER_BLOCKS = new ArrayList<>();
 
     // ====== Creative Tab ======
     public static final CreativeTabs CREATIVE_TAB = new CreativeTabs(Tags.MOD_ID) {
@@ -57,10 +51,8 @@ public class FunctionalStorageLgeacy {
             return new ItemStack(DRAWER_CONTROLLER_BLOCK);
         }
     };
-
-    // ====== Blocks ======
-    // Wood drawers: 6 woods × 3 types = 18 blocks
-    public static final List<WoodDrawerBlock> WOOD_DRAWER_BLOCKS = new ArrayList<>();
+    @SidedProxy(clientSide = "com.xinyihl.functionalstoragelgeacy.proxy.ClientProxy", serverSide = "com.xinyihl.functionalstoragelgeacy.proxy.CommonProxy")
+    public static CommonProxy proxy;
     public static DrawerControllerBlock DRAWER_CONTROLLER_BLOCK;
     public static ControllerExtensionBlock CONTROLLER_EXTENSION_BLOCK;
     public static CompactingDrawerBlock COMPACTING_DRAWER_BLOCK;
