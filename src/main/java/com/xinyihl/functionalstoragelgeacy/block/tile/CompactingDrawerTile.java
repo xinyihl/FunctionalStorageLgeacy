@@ -205,6 +205,16 @@ public class CompactingDrawerTile extends ControllableDrawerTile {
     }
 
     @Override
+    protected boolean canApplyUpgradeState(UpgradeState state) {
+        if (state.creative) {
+            return true;
+        }
+        float baseSize = state.ironDowngrade ? 1.0f : 8.0f;
+        double totalCapacity = (getSlotCount() == 2 ? 64D * 9D : 64D * 9D * 9D) * baseSize * state.storageMultiplier;
+        return handler.getTotalInBase() <= Math.floor(totalCapacity);
+    }
+
+    @Override
     protected void writeCustomData(NBTTagCompound nbt) {
         nbt.setTag("CompactingInv", handler.serializeNBT());
         nbt.setInteger("SlotCount", getSlotCount());

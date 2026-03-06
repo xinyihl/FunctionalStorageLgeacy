@@ -7,6 +7,7 @@ import com.xinyihl.functionalstoragelgeacy.container.ContainerDrawer;
 import com.xinyihl.functionalstoragelgeacy.fluid.BigFluidHandler;
 import com.xinyihl.functionalstoragelgeacy.inventory.BigInventoryHandler;
 import com.xinyihl.functionalstoragelgeacy.inventory.CompactingInventoryHandler;
+import com.xinyihl.functionalstoragelgeacy.item.StorageUpgradeItem;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -204,6 +205,8 @@ public class GuiDrawer extends GuiContainer {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        drawStorageUpgradeOverlays();
+
         String title = container.getTile().getDisplayName() != null
                 ? container.getTile().getDisplayName().getUnformattedText()
                 : "Drawer";
@@ -226,5 +229,40 @@ public class GuiDrawer extends GuiContainer {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
+    }
+
+    private void drawStorageUpgradeOverlays() {
+        int storageSlots = container.getTile().getStorageUpgrades().getSlots();
+        ItemStack carriedStack = mc.player == null ? ItemStack.EMPTY : mc.player.inventory.getItemStack();
+        StorageUpgradeItem carriedUpgrade = carriedStack.getItem() instanceof StorageUpgradeItem
+                ? (StorageUpgradeItem) carriedStack.getItem()
+                : null;
+
+        GlStateManager.disableLighting();
+        GlStateManager.disableDepth();
+        for (int i = 0; i < storageSlots; i++) {
+            int sx = 7 + i * 18;
+            int sy = 19;
+
+            if (carriedUpgrade != null) {
+                ItemStack existing = container.getTile().getStorageUpgrades().getStackInSlot(i);
+                if (existing.getItem() instanceof StorageUpgradeItem) {
+                    StorageUpgradeItem existingUpgrade = (StorageUpgradeItem) existing.getItem();
+                    if (carriedUpgrade.getTier().getMultiplier() > existingUpgrade.getTier().getMultiplier()) {
+                        int color = container.getTile().canReplaceStorageUpgrade(i, carriedStack)
+                                ? 0x5500AA00
+                                : 0x55AA0000;
+                        drawGradientRect(sx, sy, sx + 18, sy + 18, color, color);
+                        continue;
+                    }
+                }
+            }
+
+            if (container.getTile().isStorageUpgradeLocked(i)) {
+                drawGradientRect(sx, sy, sx + 18, sy + 18, 0x66000000, 0x66000000);
+            }
+        }
+        GlStateManager.enableDepth();
+        GlStateManager.enableLighting();
     }
 }

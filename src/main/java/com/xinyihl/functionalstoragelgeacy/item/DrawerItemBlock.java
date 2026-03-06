@@ -8,9 +8,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import com.xinyihl.functionalstoragelgeacy.DrawerType;
+import com.xinyihl.functionalstoragelgeacy.block.CompactingDrawerBlock;
+import com.xinyihl.functionalstoragelgeacy.block.SimpleCompactingDrawerBlock;
+import com.xinyihl.functionalstoragelgeacy.block.WoodDrawerBlock;
+import com.xinyihl.functionalstoragelgeacy.inventory.item.CompactingStackItemHandler;
+import com.xinyihl.functionalstoragelgeacy.inventory.item.DrawerStackCapabilityProvider;
+import com.xinyihl.functionalstoragelgeacy.inventory.item.DrawerStackItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,6 +32,13 @@ public class DrawerItemBlock extends ItemBlock {
 
     public DrawerItemBlock(Block block) {
         super(block);
+    }
+
+    @Nullable
+    @Override
+    public ICapabilityProvider initCapabilities(@Nonnull ItemStack stack, @Nullable NBTTagCompound nbt) {
+        IItemHandler handler = createItemHandler(stack);
+        return handler == null ? null : new DrawerStackCapabilityProvider(handler);
     }
 
     @SideOnly(Side.CLIENT)
@@ -40,6 +57,22 @@ public class DrawerItemBlock extends ItemBlock {
 
     private List<String> collectStoredLines(ItemStack stack) {
         List<String> lines = new ArrayList<>();
+
+        if (stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+            IItemHandler handler = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+            if (handler != null) {
+                for (int slot = 0; slot < handler.getSlots(); slot++) {
+                    ItemStack stored = handler.getStackInSlot(slot);
+                    if (!stored.isEmpty() && stored.getCount() > 0) {
+                        lines.add(stored.getDisplayName() + "x" + formatCompact(stored.getCount()));
+                    }
+                }
+            }
+            if (!lines.isEmpty()) {
+                return lines;
+            }
+        }
+
         if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("TileData")) {
             return lines;
         }
@@ -57,8 +90,26 @@ public class DrawerItemBlock extends ItemBlock {
                     int amount = entry.getInteger("Amount");
                     if (amount <= 0) continue;
                     ItemStack item = new ItemStack(stackTag);
-                    lines.add(item.getDisplayName() + "x" + amount);
+                    lines.add(item.getDisplayName() + "x" + formatCompact(amount));
                 }
+            }
+        }
+
+        if (tileData.hasKey("CompactingInv")) {
+            NBTTagCompound compactingInv = tileData.getCompoundTag("CompactingInv");
+            int totalBase = compactingInv.getInteger("TotalBase");
+            int slotCount = tileData.hasKey("SlotCount") ? tileData.getInteger("SlotCount") : 3;
+            for (int i = 0; i < slotCount; i++) {
+                String key = "Result_" + i;
+                if (!compactingInv.hasKey(key)) continue;
+                NBTTagCompound entry = compactingInv.getCompoundTag(key);
+                NBTTagCompound stackTag = entry.getCompoundTag("Stack");
+                if (stackTag.getKeySet().isEmpty()) continue;
+                int needed = Math.max(1, entry.getInteger("Needed"));
+                int amount = totalBase / needed;
+                if (amount <= 0) continue;
+                ItemStack item = new ItemStack(stackTag);
+                lines.add(item.getDisplayName() + "x" + formatCompact(amount));
             }
         }
 
@@ -75,6 +126,21 @@ public class DrawerItemBlock extends ItemBlock {
         }
 
         return lines;
+    }
+
+    @Nullable
+    private IItemHandler createItemHandler(ItemStack stack) {
+        if (block instanceof WoodDrawerBlock) {
+            DrawerType drawerType = ((WoodDrawerBlock) block).getDrawerType();
+            return new DrawerStackItemHandler(stack, drawerType);
+        }
+        if (block instanceof CompactingDrawerBlock) {
+            return new CompactingStackItemHandler(stack, 3);
+        }
+        if (block instanceof SimpleCompactingDrawerBlock) {
+            return new CompactingStackItemHandler(stack, 2);
+        }
+        return null;
     }
 
     private String formatCompact(long amount) {

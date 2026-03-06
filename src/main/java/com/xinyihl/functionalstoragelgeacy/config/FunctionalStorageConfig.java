@@ -17,6 +17,7 @@ public class FunctionalStorageConfig {
     public static int UPGRADE_PUSH_ITEMS = 4;
     public static int UPGRADE_PUSH_FLUID = 500;
     public static int UPGRADE_COLLECTOR_ITEMS = 4;
+    public static int UPGRADE_COLLECTOR_FLUID = 500;
     public static int COPPER_MULTIPLIER = 8;
     public static int GOLD_MULTIPLIER = 16;
     public static int DIAMOND_MULTIPLIER = 24;
@@ -37,6 +38,7 @@ public class FunctionalStorageConfig {
         UPGRADE_PUSH_ITEMS = config.getInt("upgradePushItems", "general", 4, 1, 64, "How many items the pushing upgrade will try to push");
         UPGRADE_PUSH_FLUID = config.getInt("upgradePushFluid", "general", 500, 1, 10000, "How much fluid (in mb) the pushing upgrade will try to push");
         UPGRADE_COLLECTOR_ITEMS = config.getInt("upgradeCollectorItems", "general", 4, 1, 64, "How many items the collector upgrade will try to pull");
+        UPGRADE_COLLECTOR_FLUID = config.getInt("upgradeCollectorFluid", "general", 500, 1, 10000, "How much fluid (in mb) the collector upgrade will try to collect");
         ENABLE_TOP_COMPATIBILITY = config.getBoolean("enableTOPCompatibility", "compatibility", true, "Enable The One Probe compatibility integration");
 
         COPPER_MULTIPLIER = config.getInt("copperMultiplier", "storage", 8, 1, 1024, "Copper Upgrade storage multiplier");

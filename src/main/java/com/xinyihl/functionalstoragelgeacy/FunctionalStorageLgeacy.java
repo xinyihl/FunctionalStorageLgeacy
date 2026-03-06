@@ -182,16 +182,18 @@ public class FunctionalStorageLgeacy {
             NETHERITE_UPGRADE.setRegistryName("netherite_upgrade");
             NETHERITE_UPGRADE.setTranslationKey(Tags.MOD_ID + ".netherite_upgrade");
 
-            CREATIVE_VENDING_UPGRADE = new Item()
+            CREATIVE_VENDING_UPGRADE = new UpgradeItem(UpgradeItem.Type.STORAGE)
                     .setRegistryName("creative_vending_upgrade")
                     .setTranslationKey(Tags.MOD_ID + ".creative_vending_upgrade")
                     .setMaxStackSize(1)
                     .setCreativeTab(CREATIVE_TAB);
+            ((UpgradeItem) CREATIVE_VENDING_UPGRADE).incompatibleWith(CREATIVE_VENDING_UPGRADE);
 
             // Utility Upgrades
             VOID_UPGRADE = new UpgradeItem(UpgradeItem.Type.UTILITY, UpgradeItem.UtilityAction.VOID);
             VOID_UPGRADE.setRegistryName("void_upgrade");
             VOID_UPGRADE.setTranslationKey(Tags.MOD_ID + ".void_upgrade");
+            VOID_UPGRADE.incompatibleWith(VOID_UPGRADE);
 
             REDSTONE_UPGRADE = new UpgradeItem(UpgradeItem.Type.UTILITY, UpgradeItem.UtilityAction.REDSTONE);
             REDSTONE_UPGRADE.setRegistryName("redstone_upgrade");

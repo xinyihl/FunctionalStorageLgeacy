@@ -27,7 +27,12 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base class for drawer upgrade items.
@@ -52,6 +57,7 @@ public class UpgradeItem extends Item {
 
     private final Type type;
     private final UtilityAction utilityAction;
+    private final Set<Item> incompatibleUpgrades = new LinkedHashSet<>();
 
     public UpgradeItem(Type type) {
         this(type, UtilityAction.NONE);
@@ -69,6 +75,15 @@ public class UpgradeItem extends Item {
 
     public UtilityAction getUtilityAction() {
         return utilityAction;
+    }
+
+    public UpgradeItem incompatibleWith(Item... upgrades) {
+        incompatibleUpgrades.addAll(Arrays.asList(upgrades));
+        return this;
+    }
+
+    public Set<Item> getIncompatibleUpgrades(@Nonnull ItemStack stack) {
+        return Collections.unmodifiableSet(incompatibleUpgrades);
     }
 
     public boolean isDirectionalUtility() {
@@ -137,16 +152,18 @@ public class UpgradeItem extends Item {
      */
     public void onTick(ControllableDrawerTile tile, ItemStack upgradeStack, int upgradeSlot) {
         if (tile.getWorld() == null || tile.getWorld().isRemote) return;
-        if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
 
         switch (utilityAction) {
             case PULLING:
+                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
                 handlePulling(tile, upgradeStack);
                 break;
             case PUSHING:
+                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
                 handlePushing(tile, upgradeStack);
                 break;
             case COLLECTOR:
+                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
                 handleCollector(tile, upgradeStack);
                 break;
             default:
@@ -248,33 +265,58 @@ public class UpgradeItem extends Item {
         World world = tile.getWorld();
 
         IItemHandler drawerHandler = tile.getItemHandler();
-        if (drawerHandler == null) return;
+        if (drawerHandler != null) {
+            // Use exact block AABB for collection area (matches 1.21 behavior)
+            AxisAlignedBB collectArea = new AxisAlignedBB(collectPos);
+            List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, collectArea, EntitySelectors.IS_ALIVE);
+            for (EntityItem entity : items) {
+                if (entity.isDead) continue;
+                ItemStack entityStack = entity.getItem();
+                if (entityStack.isEmpty()) continue;
 
-        // Use exact block AABB for collection area (matches 1.21 behavior)
-        AxisAlignedBB collectArea = new AxisAlignedBB(collectPos);
-        List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, collectArea, EntitySelectors.IS_ALIVE);
-        for (EntityItem entity : items) {
-            if (entity.isDead) continue;
-            ItemStack entityStack = entity.getItem();
-            if (entityStack.isEmpty()) continue;
+                // Limit items collected per entity to config value (matches 1.21 behavior)
+                int maxCollect = Math.min(entityStack.getCount(), FunctionalStorageConfig.UPGRADE_COLLECTOR_ITEMS);
+                ItemStack toInsert = entityStack.copy();
+                toInsert.setCount(maxCollect);
 
-            // Limit items collected per entity to config value (matches 1.21 behavior)
-            int maxCollect = Math.min(entityStack.getCount(), FunctionalStorageConfig.UPGRADE_COLLECTOR_ITEMS);
-            ItemStack toInsert = entityStack.copy();
-            toInsert.setCount(maxCollect);
-
-            ItemStack remainder = ItemHandlerHelper.insertItemStacked(drawerHandler, toInsert, false);
-            int inserted = maxCollect - (remainder.isEmpty() ? 0 : remainder.getCount());
-            if (inserted > 0) {
-                entityStack.shrink(inserted);
-                if (entityStack.isEmpty()) {
-                    entity.setDead();
-                } else {
-                    entity.setItem(entityStack);
+                ItemStack remainder = ItemHandlerHelper.insertItemStacked(drawerHandler, toInsert, false);
+                int inserted = maxCollect - (remainder.isEmpty() ? 0 : remainder.getCount());
+                if (inserted > 0) {
+                    entityStack.shrink(inserted);
+                    if (entityStack.isEmpty()) {
+                        entity.setDead();
+                    } else {
+                        entity.setItem(entityStack);
+                    }
+                    // Stop after processing one entity (matches 1.21 behavior)
+                    return;
                 }
-                // Stop after processing one entity (matches 1.21 behavior)
-                return;
             }
+        }
+
+        if (tile instanceof FluidDrawerTile
+                && world.getTotalWorldTime() % (FunctionalStorageConfig.UPGRADE_TICK * 3L) == 0) {
+            handleCollectorFluids((FluidDrawerTile) tile, collectPos, dir);
+        }
+    }
+
+    private void handleCollectorFluids(FluidDrawerTile tile, BlockPos collectPos, EnumFacing dir) {
+        TileEntity neighborTE = tile.getWorld().getTileEntity(collectPos);
+        if (neighborTE == null
+                || !neighborTE.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, dir.getOpposite())) {
+            return;
+        }
+        IFluidHandler sourceFluid = neighborTE.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, dir.getOpposite());
+        if (sourceFluid == null) {
+            return;
+        }
+        FluidStack drained = sourceFluid.drain(FunctionalStorageConfig.UPGRADE_COLLECTOR_FLUID, false);
+        if (drained == null || drained.amount <= 0) {
+            return;
+        }
+        int accepted = tile.getFluidHandler().fill(drained.copy(), true);
+        if (accepted > 0) {
+            sourceFluid.drain(accepted, true);
         }
     }
 }

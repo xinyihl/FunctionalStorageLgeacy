@@ -214,6 +214,21 @@ public class FluidDrawerTile extends ControllableDrawerTile {
         return (int) ((totalStored / (double) totalCapacity) * 15);
     }
 
+    @Override
+    protected boolean canApplyUpgradeState(UpgradeState state) {
+        if (state.creative) {
+            return true;
+        }
+        float baseSize = state.ironDowngrade ? 1.0f : drawerType.getSlotAmount();
+        int capacityPerTank = (int) Math.floor(baseSize * state.fluidMultiplier * 1000D);
+        for (BigFluidHandler.CustomFluidTank tank : fluidHandler.getTanks()) {
+            if (tank.getFluid() != null && tank.getFluid().amount > capacityPerTank) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public BigFluidHandler getFluidHandler() {
         return fluidHandler;
     }

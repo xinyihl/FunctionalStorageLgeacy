@@ -227,6 +227,29 @@ public class DrawerTile extends ControllableDrawerTile {
         return (int) ((totalStored / (double) totalCapacity) * 15);
     }
 
+    @Override
+    protected boolean canApplyUpgradeState(UpgradeState state) {
+        if (state.creative) {
+            return true;
+        }
+        float baseSize = state.ironDowngrade ? 1.0f : drawerType.getSlotAmount();
+        for (int i = 0; i < handler.getSlotCount(); i++) {
+            BigInventoryHandler.BigStack bigStack = handler.getStoredStacks().get(i);
+            if (bigStack.getAmount() <= 0) {
+                continue;
+            }
+            double stackSize = 1.0d;
+            if (!bigStack.getStack().isEmpty()) {
+                stackSize = bigStack.getStack().getMaxStackSize() / 64D;
+            }
+            int capacity = (int) Math.floor(64D * baseSize * state.storageMultiplier * stackSize);
+            if (bigStack.getAmount() > capacity) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public BigInventoryHandler getHandler() {
         return handler;
     }
