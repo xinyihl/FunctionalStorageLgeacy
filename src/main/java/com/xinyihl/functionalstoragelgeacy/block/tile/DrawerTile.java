@@ -31,6 +31,10 @@ public class DrawerTile extends ControllableDrawerTile {
     private DrawerWoodType woodType;
     private int removeTicks = 0;
 
+    public DrawerTile() {
+        this(DrawerType.X_1, DrawerWoodType.OAK);
+    }
+
     public DrawerTile(DrawerType drawerType, DrawerWoodType woodType) {
         super();
         this.drawerType = drawerType;

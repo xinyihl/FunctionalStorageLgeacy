@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import java.util.*;
 
 /**
  * TileEntitySpecialRenderer for StorageControllerTile.
@@ -78,14 +78,10 @@ public class ControllerRenderer extends TileEntitySpecialRenderer<StorageControl
         }
 
         // ---- 2. Connected drawers highlight (white wireframes) ----
+        Set<BlockPos> highlightedBlocks = new HashSet<>();
         List<Long> connectedPositions = te.getConnectedDrawers().getConnectedDrawers();
         for (Long posLong : connectedPositions) {
-            BlockPos drawerPos = BlockPos.fromLong(posLong);
-            double dx = drawerPos.getX() - te.getPos().getX();
-            double dy = drawerPos.getY() - te.getPos().getY();
-            double dz = drawerPos.getZ() - te.getPos().getZ();
-            AxisAlignedBB drawerBox = new AxisAlignedBB(dx, dy, dz, dx + 1, dy + 1, dz + 1);
-            renderWireframeBox(drawerBox, 1f, 1f, 1f, 1f);
+            highlightedBlocks.add(BlockPos.fromLong(posLong));
         }
 
         for (Long posLong : te.getLinkedExtensionPositions()) {
@@ -93,12 +89,9 @@ public class ControllerRenderer extends TileEntitySpecialRenderer<StorageControl
             if (!(te.getWorld().getTileEntity(extensionPos) instanceof ControllerExtensionTile)) {
                 continue;
             }
-            double dx = extensionPos.getX() - te.getPos().getX();
-            double dy = extensionPos.getY() - te.getPos().getY();
-            double dz = extensionPos.getZ() - te.getPos().getZ();
-            AxisAlignedBB extensionBox = new AxisAlignedBB(dx, dy, dz, dx + 1, dy + 1, dz + 1);
-            renderWireframeBox(extensionBox, 1f, 1f, 1f, 1f);
+            highlightedBlocks.add(extensionPos);
         }
+        renderMergedBlockWireframes(highlightedBlocks, te.getPos(), 1f, 1f, 1f, 1f);
 
         // ---- 3. Controller range box (green wireframe + translucent green faces) ----
         double range = te.getControllerRange();
@@ -106,8 +99,8 @@ public class ControllerRenderer extends TileEntitySpecialRenderer<StorageControl
         renderWireframeBox(new AxisAlignedBB(0, 0, 0, 1, 1, 1).grow(0.002), 1f, 0.293f, 0.416f, 1f);
         GlStateManager.enableDepth();
         renderWireframeBox(rangeBox, 0.0f, 1f, 0.0f, 1f);
-        renderGridBox(rangeBox, 0.0f, 1f, 0.0f, 0.5f);
-        //renderFilledBox(rangeBox, 0.0f, 1f, 0.0f, 0.15f);
+        renderGridBox(rangeBox, 0.0f, 1f, 0.0f, 0.3f);
+        renderFilledBox(rangeBox, 0.0f, 1f, 0.0f, 0.11f);
 
         // Restore GL state
         GlStateManager.enableDepth();
@@ -172,6 +165,110 @@ public class ControllerRenderer extends TileEntitySpecialRenderer<StorageControl
         buffer.pos(x1, y2, z2).color(r, g, b, a).endVertex();
 
         tessellator.draw();
+    }
+
+    private void renderMergedBlockWireframes(Collection<BlockPos> blocks, BlockPos origin, float r, float g, float b, float a) {
+        if (blocks.isEmpty()) return;
+
+        Map<EdgeKey, Integer> edgeCounts = new HashMap<>();
+
+        for (BlockPos block : blocks) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+
+            addEdge(edgeCounts, x, y, z, x + 1, y, z);
+            addEdge(edgeCounts, x + 1, y, z, x + 1, y, z + 1);
+            addEdge(edgeCounts, x + 1, y, z + 1, x, y, z + 1);
+            addEdge(edgeCounts, x, y, z + 1, x, y, z);
+
+            addEdge(edgeCounts, x, y + 1, z, x + 1, y + 1, z);
+            addEdge(edgeCounts, x + 1, y + 1, z, x + 1, y + 1, z + 1);
+            addEdge(edgeCounts, x + 1, y + 1, z + 1, x, y + 1, z + 1);
+            addEdge(edgeCounts, x, y + 1, z + 1, x, y + 1, z);
+
+            addEdge(edgeCounts, x, y, z, x, y + 1, z);
+            addEdge(edgeCounts, x + 1, y, z, x + 1, y + 1, z);
+            addEdge(edgeCounts, x + 1, y, z + 1, x + 1, y + 1, z + 1);
+            addEdge(edgeCounts, x, y, z + 1, x, y + 1, z + 1);
+        }
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+
+        GlStateManager.glLineWidth(2.0f);
+        buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+
+        for (Map.Entry<EdgeKey, Integer> entry : edgeCounts.entrySet()) {
+            if (entry.getValue() != 1) {
+                continue;
+            }
+            EdgeKey edge = entry.getKey();
+            buffer.pos(edge.x1 - origin.getX(), edge.y1 - origin.getY(), edge.z1 - origin.getZ()).color(r, g, b, a).endVertex();
+            buffer.pos(edge.x2 - origin.getX(), edge.y2 - origin.getY(), edge.z2 - origin.getZ()).color(r, g, b, a).endVertex();
+        }
+
+        tessellator.draw();
+    }
+
+    private void addEdge(Map<EdgeKey, Integer> edgeCounts, int x1, int y1, int z1, int x2, int y2, int z2) {
+        EdgeKey key = new EdgeKey(x1, y1, z1, x2, y2, z2);
+        Integer count = edgeCounts.get(key);
+        edgeCounts.put(key, count == null ? 1 : count + 1);
+    }
+
+    private static class EdgeKey {
+        final int x1;
+        final int y1;
+        final int z1;
+        final int x2;
+        final int y2;
+        final int z2;
+
+        EdgeKey(int ax, int ay, int az, int bx, int by, int bz) {
+            // Normalize order so A->B and B->A map to the same key.
+            if (isBefore(ax, ay, az, bx, by, bz)) {
+                this.x1 = ax;
+                this.y1 = ay;
+                this.z1 = az;
+                this.x2 = bx;
+                this.y2 = by;
+                this.z2 = bz;
+            } else {
+                this.x1 = bx;
+                this.y1 = by;
+                this.z1 = bz;
+                this.x2 = ax;
+                this.y2 = ay;
+                this.z2 = az;
+            }
+        }
+
+        private static boolean isBefore(int ax, int ay, int az, int bx, int by, int bz) {
+            if (ax != bx) return ax < bx;
+            if (ay != by) return ay < by;
+            return az <= bz;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof EdgeKey)) return false;
+            EdgeKey other = (EdgeKey) obj;
+            return x1 == other.x1 && y1 == other.y1 && z1 == other.z1
+                    && x2 == other.x2 && y2 == other.y2 && z2 == other.z2;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = x1;
+            result = 31 * result + y1;
+            result = 31 * result + z1;
+            result = 31 * result + x2;
+            result = 31 * result + y2;
+            result = 31 * result + z2;
+            return result;
+        }
     }
 
     private void renderGridBox(AxisAlignedBB box, float r, float g, float b, float a) {

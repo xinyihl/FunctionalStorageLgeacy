@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TileTOPDataProvider implements IProbeInfoProvider {
+    private static final int MAX_RENDERED_ENTRIES = 5;
+
     public TileTOPDataProvider() {
     }
 
@@ -161,12 +163,18 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
 
         probeInfo.text(TextStyleClass.LABEL + i18n("stored"));
         IProbeInfo vertical = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(Config.chestContentsBorderColor).spacing(0));
-        for (ItemEntry item : items) {
+        int rendered = Math.min(items.size(), MAX_RENDERED_ENTRIES);
+        for (int i = 0; i < rendered; i++) {
+            ItemEntry item = items.get(i);
             vertical.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER))
                     .item(item.stack)
                     .vertical(probeInfo.defaultLayoutStyle().spacing(0))
                     .itemLabel(item.stack)
                     .text(TextStyleClass.INFO + formatCompact(item.amount) + " / " + formatCompact(item.capacity));
+        }
+
+        if (items.size() > MAX_RENDERED_ENTRIES) {
+            vertical.text(TextStyleClass.INFO + "...");
         }
     }
 
@@ -177,13 +185,19 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
 
         probeInfo.text(TextStyleClass.LABEL + i18n("stored"));
         IProbeInfo vertical = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(Config.chestContentsBorderColor).spacing(0));
-        for (FluidEntry fluid : fluids) {
+        int rendered = Math.min(fluids.size(), MAX_RENDERED_ENTRIES);
+        for (int i = 0; i < rendered; i++) {
+            FluidEntry fluid = fluids.get(i);
             vertical.text(TextStyleClass.INFO + fluid.name + " " + formatCompact(fluid.amount) + " / " + formatCompact(fluid.capacity) + " mB")
                     .progress(fluid.amount, fluid.capacity,
                             probeInfo.defaultProgressStyle()
                                     .numberFormat(NumberFormat.COMPACT)
                                     .suffix(" mB")
                     );
+        }
+
+        if (fluids.size() > MAX_RENDERED_ENTRIES) {
+            vertical.text(TextStyleClass.INFO + "...");
         }
     }
 

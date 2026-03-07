@@ -27,6 +27,10 @@ public class FluidDrawerTile extends ControllableDrawerTile {
     private BigFluidHandler fluidHandler;
     private DrawerType drawerType;
 
+    public FluidDrawerTile() {
+        this(DrawerType.X_1);
+    }
+
     public FluidDrawerTile(DrawerType drawerType) {
         super();
         this.drawerType = drawerType;
