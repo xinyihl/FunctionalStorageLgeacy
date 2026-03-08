@@ -5,6 +5,8 @@ import com.xinyihl.functionalstoragelegacy.world.EnderSavedData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
@@ -27,7 +29,7 @@ public class EnderDrawerTile extends ControllableDrawerTile {
     private static final HashMap<UUID, Long> INTERACTION_LOGGER = new HashMap<>();
 
     private String frequency;
-    private IItemHandler storage;
+    private EnderInventoryHandler storage;
     private int removeTicks = 0;
 
     public EnderDrawerTile() {
@@ -41,22 +43,23 @@ public class EnderDrawerTile extends ControllableDrawerTile {
         if (world != null && !world.isRemote) {
             removeTicks = Math.max(removeTicks - 1, 0);
 
-            if (world.getTotalWorldTime() % 10 == 0 && storage instanceof EnderInventoryHandler) {
-                EnderInventoryHandler enderHandler = (EnderInventoryHandler) storage;
-                if (enderHandler.isLocked() != isLocked()) {
-                    super.setLocked(enderHandler.isLocked());
+            if (world.getTotalWorldTime() % 10 == 0 && storage != null) {
+                if (storage.isLocked() != isLocked()) {
+                    super.setLocked(storage.isLocked());
                 }
-                // Send periodic updates to sync ender inventory contents to clients
+            }
+
+            if (storage != null && storage.needUpdate()) {
                 sendUpdatePacket();
             }
         }
     }
 
     @Override
-    public void setWorld(@Nonnull net.minecraft.world.World worldIn) {
-        super.setWorld(worldIn);
-        if (worldIn != null && !worldIn.isRemote) {
-            this.storage = EnderSavedData.getInstance(worldIn).getFrequency(this.frequency);
+    public void onLoad() {
+        super.onLoad();
+        if (!world.isRemote && storage == null) {
+            this.storage = EnderSavedData.getInstance(world).getFrequency(this.frequency);
         }
     }
 
@@ -154,27 +157,22 @@ public class EnderDrawerTile extends ControllableDrawerTile {
     @Override
     public NBTTagCompound getUpdateTag() {
         NBTTagCompound tag = super.getUpdateTag();
-        if (storage instanceof EnderInventoryHandler) {
-            tag.setTag("EnderInventory", ((EnderInventoryHandler) storage).serializeNBT());
+        if (storage != null) {
+            tag.setTag("EnderInventory", storage.serializeNBT());
         }
         return tag;
     }
 
     @Override
-    public void onDataPacket(@Nonnull net.minecraft.network.NetworkManager net, net.minecraft.network.play.server.SPacketUpdateTileEntity pkt) {
+    public void onDataPacket(@Nonnull NetworkManager net, SPacketUpdateTileEntity pkt) {
         super.onDataPacket(net, pkt);
         NBTTagCompound nbt = pkt.getNbtCompound();
         if (nbt.hasKey("EnderInventory")) {
             if (this.storage == null) {
                 this.storage = new EnderInventoryHandler() {
-                    @Override
-                    public void onChange() {
-                    }
                 };
             }
-            if (this.storage instanceof EnderInventoryHandler) {
-                ((EnderInventoryHandler) this.storage).deserializeNBT(nbt.getCompoundTag("EnderInventory"));
-            }
+            this.storage.deserializeNBT(nbt.getCompoundTag("EnderInventory"));
         }
     }
 

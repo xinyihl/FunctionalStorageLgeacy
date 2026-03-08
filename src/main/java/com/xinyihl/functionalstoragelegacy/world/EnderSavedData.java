@@ -1,9 +1,9 @@
 package com.xinyihl.functionalstoragelegacy.world;
 
+import com.xinyihl.functionalstoragelegacy.Tags;
 import com.xinyihl.functionalstoragelegacy.inventory.EnderInventoryHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
 import javax.annotation.Nonnull;
@@ -17,25 +17,24 @@ import java.util.Map;
  */
 public class EnderSavedData extends WorldSavedData {
 
-    private static final String DATA_NAME = "functionalstoragelegacy_ender";
-
     private final Map<String, EnderInventoryHandler> frequencyMap = new HashMap<>();
 
-    public EnderSavedData() {
-        super(DATA_NAME);
+    public EnderSavedData(String name) {
+        super(name);
     }
 
     public static EnderSavedData getInstance(World world) {
-        MapStorage storage = world.getMapStorage();
-        if (storage == null) {
-            return new EnderSavedData();
+        EnderSavedData data = null;
+        if (world.getMapStorage() != null) {
+            data = (EnderSavedData) world.getMapStorage().getOrLoadData(EnderSavedData.class, Tags.MOD_ID + "_ender");
         }
-        EnderSavedData instance = (EnderSavedData) storage.getOrLoadData(EnderSavedData.class, DATA_NAME);
-        if (instance == null) {
-            instance = new EnderSavedData();
-            storage.setData(DATA_NAME, instance);
+        if (data == null) {
+            data = new EnderSavedData(Tags.MOD_ID + "_ender");
+            if (world.getMapStorage() != null) {
+                world.getMapStorage().setData(Tags.MOD_ID + "_ender", data);
+            }
         }
-        return instance;
+        return data;
     }
 
     public EnderInventoryHandler getFrequency(String frequency) {
@@ -43,6 +42,7 @@ public class EnderSavedData extends WorldSavedData {
             EnderInventoryHandler handler = new EnderInventoryHandler() {
                 @Override
                 public void onChange() {
+                    super.onChange();
                     markDirty();
                 }
             };
@@ -61,6 +61,7 @@ public class EnderSavedData extends WorldSavedData {
             EnderInventoryHandler handler = new EnderInventoryHandler() {
                 @Override
                 public void onChange() {
+                    super.onChange();
                     markDirty();
                 }
             };

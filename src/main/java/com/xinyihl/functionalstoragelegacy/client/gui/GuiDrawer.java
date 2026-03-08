@@ -125,7 +125,7 @@ public class GuiDrawer extends GuiContainer {
             );
         } else if (tile instanceof EnderDrawerTile) {
             EnderDrawerTile enderTile = (EnderDrawerTile) tile;
-            ResourceLocation frontTexture = new ResourceLocation(Tags.MOD_ID, "textures/blocks/ender_front_1.png");
+            ResourceLocation frontTexture = new ResourceLocation(Tags.MOD_ID, "textures/blocks/ender_front.png");
             itemInfoAddon = new DrawerInfoGuiAddon(
                     INFO_PANEL_X, INFO_PANEL_Y,
                     frontTexture,

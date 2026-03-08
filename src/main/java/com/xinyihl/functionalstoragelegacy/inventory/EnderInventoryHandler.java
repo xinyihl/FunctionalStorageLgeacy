@@ -12,13 +12,20 @@ public abstract class EnderInventoryHandler extends BigInventoryHandler {
     private boolean isVoid = false;
     private boolean isCreative = false;
     private float multiplier = 1;
+    public boolean needUpdate = false;
 
     public EnderInventoryHandler() {
         super(1); // Ender drawer has 1 slot, base 32 slot amount
     }
 
     @Override
-    public abstract void onChange();
+    public void onChange() {
+        needUpdate = true;
+    }
+
+    public boolean needUpdate() {
+        return needUpdate;
+    }
 
     @Override
     public float getMultiplier() {

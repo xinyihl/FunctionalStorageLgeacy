@@ -210,10 +210,10 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
 
         int count = stack.getCount();
         if (showRender) {
-            renderStackOnFace(stack, 0.5F, 0.5F, 1.0F, Z_OFFSET_STACK);
+            renderStackOnFace(stack, 0.5F, 0.5F, 1.0F, 1.001F);
         }
         if (showCount) {
-            renderCountOnFace(count, 0.5F, 0.5F, 1.0F, 0.3F, Z_OFFSET_COUNT);
+            renderCountOnFace(count, 0.5F, 0.5F, 1.0F, 0.2F, 1.005F);
         }
     }
 
