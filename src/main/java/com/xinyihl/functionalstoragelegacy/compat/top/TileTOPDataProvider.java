@@ -36,10 +36,23 @@ public class TileTOPDataProvider implements IProbeInfoProvider {
         return "{*tooltip.functionalstoragelegacy." + key + "*}";
     }
 
-    protected String formatCompact(long amount) {
-        if (amount < 1000) return String.valueOf(amount);
-        if (amount % 1000 == 0) return (amount / 1000) + "k";
-        return String.format("%.1fk", amount / 1000.0).replace(".0k", "k");
+    public String formatCompact(long amount) {
+        try {
+            if (amount == 0) {
+                return "0";
+            }
+            String[] units = {"", "k", "m", "g", "t", "p", "e", "z", "y", "r", "q"};
+            long k = 1000;
+            int unitIndex = 0;
+            long value = amount;
+            while (value >= k && unitIndex < units.length - 1) {
+                value /= k;
+                unitIndex++;
+            }
+            return value + units[unitIndex];
+        } catch (Exception e) {
+            return "0";
+        }
     }
 
     private long safeAmount(long value) {

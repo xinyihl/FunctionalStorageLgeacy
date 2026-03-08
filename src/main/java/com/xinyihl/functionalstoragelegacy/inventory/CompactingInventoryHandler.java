@@ -192,7 +192,8 @@ public abstract class CompactingInventoryHandler implements IItemHandler, ILocka
 
     // Total capacity in base items
     public double getTotalCapacity() {
-        return slots == 2 ? 64 * 9d * getMultiplier() : 64 * 9d * 9 * getMultiplier();
+        long i = results.stream().filter(R -> !R.getStack().isEmpty()).count();
+        return 64 * Math.pow(9, --i) * getMultiplier();
     }
 
     public int getTotalInBase() {
