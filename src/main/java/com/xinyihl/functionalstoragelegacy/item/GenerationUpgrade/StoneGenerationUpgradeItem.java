@@ -2,6 +2,7 @@ package com.xinyihl.functionalstoragelegacy.item.GenerationUpgrade;
 
 import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.block.tile.ControllableDrawerTile;
+import com.xinyihl.functionalstoragelegacy.config.FunctionalStorageConfig;
 import com.xinyihl.functionalstoragelegacy.item.UpgradeItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -87,10 +88,10 @@ public class StoneGenerationUpgradeItem extends UpgradeItem {
     }
 
     public enum StoneTier {
-        BASIC(2.0f, 1),
-        ADVANCED(4.0f, 2),
-        REINFORCED(8.0f, 3),
-        MAGICAL(16.0f, 4);
+        BASIC(FunctionalStorageConfig.STONE_GENERATION_T1, 1),
+        ADVANCED(FunctionalStorageConfig.STONE_GENERATION_T2, 2),
+        REINFORCED(FunctionalStorageConfig.STONE_GENERATION_T3, 3),
+        MAGICAL(FunctionalStorageConfig.STONE_GENERATION_T4, 4);
 
         private final float generationRate;
         private final int tier;
