@@ -3,6 +3,7 @@ package com.xinyihl.functionalstoragelegacy.item.GenerationUpgrade;
 import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.block.tile.CompactingDrawerTile;
 import com.xinyihl.functionalstoragelegacy.block.tile.ControllableDrawerTile;
+import com.xinyihl.functionalstoragelegacy.block.tile.SimpleCompactingDrawerTile;
 import com.xinyihl.functionalstoragelegacy.config.FunctionalStorageConfig;
 import com.xinyihl.functionalstoragelegacy.inventory.CompactingInventoryHandler;
 import com.xinyihl.functionalstoragelegacy.item.UpgradeItem;
@@ -73,19 +74,23 @@ public class StoneGenerationUpgradeItem extends UpgradeItem {
 
         if (handler instanceof CompactingInventoryHandler) {
             CompactingInventoryHandler compactingHandler = (CompactingInventoryHandler) handler;
+
             if (!compactingHandler.isSetup()) {
                 ItemStack stoneStack = new ItemStack(Blocks.COBBLESTONE, 1);
+                int anchorSlot = compactingHandler.getSlots() - 1;
                 List<CompactingInventoryHandler.Result> results = CompactingUtil.getCompactingResults(
                         tile.getWorld(),
                         stoneStack,
                         compactingHandler.getSlots(),
-                        0
+                        anchorSlot
                 );
 
                 if (!results.isEmpty()) {
+
                     while (results.size() < compactingHandler.getSlots()) {
                         results.add(new CompactingInventoryHandler.Result(ItemStack.EMPTY, 1));
                     }
+
                     if (results.size() > compactingHandler.getSlots()) {
                         results = results.subList(0, compactingHandler.getSlots());
                     }
@@ -97,7 +102,17 @@ public class StoneGenerationUpgradeItem extends UpgradeItem {
         }
 
         ItemStack stoneStack = new ItemStack(Blocks.COBBLESTONE, 1);
-        ItemStack remainder = ItemHandlerHelper.insertItemStacked(handler, stoneStack, false);
+        ItemStack remainder;
+
+        if (tile instanceof SimpleCompactingDrawerTile) {
+            remainder = handler.insertItem(1, stoneStack, false);
+            if (!remainder.isEmpty()) {
+                remainder = ItemHandlerHelper.insertItemStacked(handler, stoneStack, false);
+            }
+        } else {
+            remainder = ItemHandlerHelper.insertItemStacked(handler, stoneStack, false);
+        }
+
         return remainder.isEmpty();
     }
 
