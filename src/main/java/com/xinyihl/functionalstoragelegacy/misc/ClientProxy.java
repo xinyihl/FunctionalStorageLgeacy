@@ -78,6 +78,10 @@ public class ClientProxy extends CommonProxy {
             registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_ADVANCED);
             registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_REINFORCED);
             registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_MAGICAL);
+            registerItemModel(RegistrationHandler.UNIVERSAL_ITEM_GENERATION_T1);
+            registerItemModel(RegistrationHandler.UNIVERSAL_ITEM_GENERATION_T2);
+            registerItemModel(RegistrationHandler.UNIVERSAL_ITEM_GENERATION_T3);
+            registerItemModel(RegistrationHandler.UNIVERSAL_ITEM_GENERATION_T4);
         }
 
         private static void registerBlockModel(Block block) {
