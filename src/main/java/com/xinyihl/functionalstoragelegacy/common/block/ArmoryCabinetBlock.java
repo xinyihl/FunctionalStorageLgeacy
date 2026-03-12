@@ -1,7 +1,7 @@
 package com.xinyihl.functionalstoragelegacy.common.block;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.common.tile.ArmoryCabinetTile;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -38,7 +38,7 @@ public class ArmoryCabinetBlock extends Block {
         this.setTranslationKey("functionalstoragelegacy.armory_cabinet");
         this.setHardness(5.0F);
         this.setResistance(10.0F);
-        this.setCreativeTab(FunctionalStorageLegacy.CREATIVE_TAB);
+        this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
         this.setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
     }
 

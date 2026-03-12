@@ -1,8 +1,8 @@
 package com.xinyihl.functionalstoragelegacy.common.inventory.capability;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.common.item.upgrade.StorageUpgradeItem;
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.ItemStackHandler;
@@ -61,10 +61,10 @@ final class DrawerStackDataHelper {
                     } else {
                         float tierMult = upgrade.getTier().getMultiplier();
                         state.storageMultiplier *= tierMult;
-                        state.fluidMultiplier *= (tierMult / FunctionalStorageConfig.FLUID_DIVISOR);
+                        state.fluidMultiplier *= (tierMult / Configurations.STORAGE.fluidDivisor);
                     }
                 }
-                if (upgradeStack.getItem() == FunctionalStorageLegacy.CREATIVE_VENDING_UPGRADE) {
+                if (upgradeStack.getItem() == RegistrationHandler.CREATIVE_VENDING_UPGRADE) {
                     state.creative = true;
                 }
             }
@@ -74,7 +74,7 @@ final class DrawerStackDataHelper {
             ItemStackHandler utilityUpgrades = new ItemStackHandler(utilityUpgradeSlots);
             utilityUpgrades.deserializeNBT(tileData.getCompoundTag("UtilityUpgrades"));
             for (int i = 0; i < utilityUpgrades.getSlots(); i++) {
-                if (utilityUpgrades.getStackInSlot(i).getItem() == FunctionalStorageLegacy.VOID_UPGRADE) {
+                if (utilityUpgrades.getStackInSlot(i).getItem() == RegistrationHandler.VOID_UPGRADE) {
                     state.voidUpgrade = true;
                     break;
                 }

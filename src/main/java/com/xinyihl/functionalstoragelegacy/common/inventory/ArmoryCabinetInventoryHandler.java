@@ -1,6 +1,6 @@
 package com.xinyihl.functionalstoragelegacy.common.inventory;
 
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
@@ -17,7 +17,7 @@ public abstract class ArmoryCabinetInventoryHandler implements IItemHandler {
     private final int size;
 
     public ArmoryCabinetInventoryHandler() {
-        this(FunctionalStorageConfig.ARMORY_CABINET_SIZE);
+        this(Configurations.GENERAL.armoryCabinetSize);
     }
 
     public ArmoryCabinetInventoryHandler(int size) {

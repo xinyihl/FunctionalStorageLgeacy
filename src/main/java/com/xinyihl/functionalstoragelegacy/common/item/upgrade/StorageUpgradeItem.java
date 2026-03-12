@@ -1,6 +1,6 @@
 package com.xinyihl.functionalstoragelegacy.common.item.upgrade;
 
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -50,22 +50,32 @@ public class StorageUpgradeItem extends UpgradeItem {
      * Storage upgrade tiers with their capacity multipliers.
      */
     public enum StorageTier {
-        IRON(1, "iron"),
-        COPPER(FunctionalStorageConfig.COPPER_MULTIPLIER, "copper"),
-        GOLD(FunctionalStorageConfig.GOLD_MULTIPLIER, "gold"),
-        DIAMOND(FunctionalStorageConfig.DIAMOND_MULTIPLIER, "diamond"),
-        NETHERITE(FunctionalStorageConfig.NETHERITE_MULTIPLIER, "netherite");
+        IRON("iron"),
+        COPPER("copper"),
+        GOLD("gold"),
+        DIAMOND("diamond"),
+        NETHERITE("netherite");
 
-        private final float multiplier;
         private final String name;
 
-        StorageTier(float multiplier, String name) {
-            this.multiplier = multiplier;
+        StorageTier(String name) {
             this.name = name;
         }
 
         public float getMultiplier() {
-            return multiplier;
+            switch (this) {
+                case COPPER:
+                    return Configurations.STORAGE.copperMultiplier;
+                case GOLD:
+                    return Configurations.STORAGE.goldMultiplier;
+                case DIAMOND:
+                    return Configurations.STORAGE.diamondMultiplier;
+                case NETHERITE:
+                    return Configurations.STORAGE.netheriteMultiplier;
+                case IRON:
+                default:
+                    return 1.0f;
+            }
         }
 
         public String getName() {

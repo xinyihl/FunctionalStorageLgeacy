@@ -1,11 +1,11 @@
 package com.xinyihl.functionalstoragelegacy.common.item;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.common.inventory.EnderInventoryHandler;
 import com.xinyihl.functionalstoragelegacy.common.tile.EnderDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.controller.DrawerControllerTile;
 import com.xinyihl.functionalstoragelegacy.common.world.EnderSavedData;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -38,7 +38,7 @@ public class LinkingToolItem extends Item {
 
     public LinkingToolItem() {
         this.setMaxStackSize(1);
-        this.setCreativeTab(FunctionalStorageLegacy.CREATIVE_TAB);
+        this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
     }
 
     public static LinkingMode getLinkingMode(ItemStack stack) {

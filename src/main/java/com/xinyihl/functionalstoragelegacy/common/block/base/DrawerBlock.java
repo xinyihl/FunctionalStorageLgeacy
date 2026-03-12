@@ -1,9 +1,9 @@
 package com.xinyihl.functionalstoragelegacy.common.block.base;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.api.DrawerType;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.controller.DrawerControllerTile;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -76,7 +76,7 @@ public abstract class DrawerBlock extends Block {
         this.useNeighborBrightness = true;
         this.setLightOpacity(255);
 
-        this.setCreativeTab(FunctionalStorageLegacy.CREATIVE_TAB);
+        this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
     }
 
     public static Attachment getAttachment(IBlockState state) {

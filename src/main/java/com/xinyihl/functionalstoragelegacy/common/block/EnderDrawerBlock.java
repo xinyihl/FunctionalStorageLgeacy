@@ -1,10 +1,10 @@
 package com.xinyihl.functionalstoragelegacy.common.block;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.api.DrawerType;
 import com.xinyihl.functionalstoragelegacy.common.block.base.DrawerBlock;
 import com.xinyihl.functionalstoragelegacy.common.item.LinkingToolItem;
 import com.xinyihl.functionalstoragelegacy.common.tile.EnderDrawerTile;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -55,7 +55,7 @@ public class EnderDrawerBlock extends DrawerBlock {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof EnderDrawerTile && !player.world.isRemote) {
             ItemStack stack = player.getHeldItemMainhand();
-            if (stack.getItem() == FunctionalStorageLegacy.LINKING_TOOL) {
+            if (stack.getItem() == RegistrationHandler.LINKING_TOOL) {
                 LinkingToolItem.setEnderFrequency(stack, ((EnderDrawerTile) te).getFrequency());
                 player.sendStatusMessage(new TextComponentTranslation("linkingtool.ender.stored").setStyle(new net.minecraft.util.text.Style().setColor(TextFormatting.AQUA)), true);
             }

@@ -1,6 +1,5 @@
 package com.xinyihl.functionalstoragelegacy.misc;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.Tags;
 import com.xinyihl.functionalstoragelegacy.client.render.ControllerRenderer;
 import com.xinyihl.functionalstoragelegacy.client.render.DrawerRenderer;
@@ -44,41 +43,41 @@ public class ClientProxy extends CommonProxy {
         @SubscribeEvent
         public static void registerModels(ModelRegistryEvent event) {
             // Wood drawer blocks
-            for (WoodDrawerBlock block : FunctionalStorageLegacy.WOOD_DRAWER_BLOCKS) {
+            for (WoodDrawerBlock block : RegistrationHandler.WOOD_DRAWER_BLOCKS) {
                 registerBlockModel(block);
             }
 
             // Special blocks
-            registerBlockModel(FunctionalStorageLegacy.DRAWER_CONTROLLER_BLOCK);
-            registerBlockModel(FunctionalStorageLegacy.CONTROLLER_EXTENSION_BLOCK);
-            registerBlockModel(FunctionalStorageLegacy.COMPACTING_DRAWER_BLOCK);
-            registerBlockModel(FunctionalStorageLegacy.SIMPLE_COMPACTING_DRAWER_BLOCK);
-            registerBlockModel(FunctionalStorageLegacy.FLUID_DRAWER_1);
-            registerBlockModel(FunctionalStorageLegacy.FLUID_DRAWER_2);
-            registerBlockModel(FunctionalStorageLegacy.FLUID_DRAWER_4);
-            registerBlockModel(FunctionalStorageLegacy.ENDER_DRAWER_BLOCK);
-            registerBlockModel(FunctionalStorageLegacy.ARMORY_CABINET_BLOCK);
+            registerBlockModel(RegistrationHandler.DRAWER_CONTROLLER_BLOCK);
+            registerBlockModel(RegistrationHandler.CONTROLLER_EXTENSION_BLOCK);
+            registerBlockModel(RegistrationHandler.COMPACTING_DRAWER_BLOCK);
+            registerBlockModel(RegistrationHandler.SIMPLE_COMPACTING_DRAWER_BLOCK);
+            registerBlockModel(RegistrationHandler.FLUID_DRAWER_1);
+            registerBlockModel(RegistrationHandler.FLUID_DRAWER_2);
+            registerBlockModel(RegistrationHandler.FLUID_DRAWER_4);
+            registerBlockModel(RegistrationHandler.ENDER_DRAWER_BLOCK);
+            registerBlockModel(RegistrationHandler.ARMORY_CABINET_BLOCK);
 
             // Items
-            registerItemModel(FunctionalStorageLegacy.IRON_DOWNGRADE);
-            registerItemModel(FunctionalStorageLegacy.COPPER_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.GOLD_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.DIAMOND_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.NETHERITE_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.CREATIVE_VENDING_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.VOID_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.REDSTONE_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.PULLING_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.PUSHING_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.COLLECTOR_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.WIRELESS_PULLING_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.WIRELESS_PUSHING_UPGRADE);
-            registerItemModel(FunctionalStorageLegacy.CONFIGURATION_TOOL);
-            registerItemModel(FunctionalStorageLegacy.LINKING_TOOL);
-            registerItemModel(FunctionalStorageLegacy.STONE_GENERATION_UPGRADE_BASIC);
-            registerItemModel(FunctionalStorageLegacy.STONE_GENERATION_UPGRADE_ADVANCED);
-            registerItemModel(FunctionalStorageLegacy.STONE_GENERATION_UPGRADE_REINFORCED);
-            registerItemModel(FunctionalStorageLegacy.STONE_GENERATION_UPGRADE_MAGICAL);
+            registerItemModel(RegistrationHandler.IRON_DOWNGRADE);
+            registerItemModel(RegistrationHandler.COPPER_UPGRADE);
+            registerItemModel(RegistrationHandler.GOLD_UPGRADE);
+            registerItemModel(RegistrationHandler.DIAMOND_UPGRADE);
+            registerItemModel(RegistrationHandler.NETHERITE_UPGRADE);
+            registerItemModel(RegistrationHandler.CREATIVE_VENDING_UPGRADE);
+            registerItemModel(RegistrationHandler.VOID_UPGRADE);
+            registerItemModel(RegistrationHandler.REDSTONE_UPGRADE);
+            registerItemModel(RegistrationHandler.PULLING_UPGRADE);
+            registerItemModel(RegistrationHandler.PUSHING_UPGRADE);
+            registerItemModel(RegistrationHandler.COLLECTOR_UPGRADE);
+            registerItemModel(RegistrationHandler.WIRELESS_PULLING_UPGRADE);
+            registerItemModel(RegistrationHandler.WIRELESS_PUSHING_UPGRADE);
+            registerItemModel(RegistrationHandler.CONFIGURATION_TOOL);
+            registerItemModel(RegistrationHandler.LINKING_TOOL);
+            registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_BASIC);
+            registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_ADVANCED);
+            registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_REINFORCED);
+            registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_MAGICAL);
         }
 
         private static void registerBlockModel(Block block) {

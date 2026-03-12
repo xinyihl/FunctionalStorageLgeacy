@@ -2,7 +2,7 @@ package com.xinyihl.functionalstoragelegacy.common.item.upgrade;
 
 import com.xinyihl.functionalstoragelegacy.common.tile.FluidDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.util.ITooltipFlag;
@@ -249,23 +249,23 @@ public class UtilityUpgradeItem extends UpgradeItem {
 
         switch (utilityAction) {
             case PULLING:
-                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
+                if (tile.getWorld().getTotalWorldTime() % Configurations.GENERAL.upgradeTick != 0) return;
                 handlePulling(tile, upgradeStack);
                 break;
             case PUSHING:
-                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
+                if (tile.getWorld().getTotalWorldTime() % Configurations.GENERAL.upgradeTick != 0) return;
                 handlePushing(tile, upgradeStack);
                 break;
             case COLLECTOR:
-                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
+                if (tile.getWorld().getTotalWorldTime() % Configurations.GENERAL.upgradeTick != 0) return;
                 handleCollector(tile, upgradeStack);
                 break;
             case WIRELESS_PULLING:
-                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
+                if (tile.getWorld().getTotalWorldTime() % Configurations.GENERAL.upgradeTick != 0) return;
                 handleWirelessPulling(tile, upgradeStack);
                 break;
             case WIRELESS_PUSHING:
-                if (tile.getWorld().getTotalWorldTime() % FunctionalStorageConfig.UPGRADE_TICK != 0) return;
+                if (tile.getWorld().getTotalWorldTime() % Configurations.GENERAL.upgradeTick != 0) return;
                 handleWirelessPushing(tile, upgradeStack);
                 break;
             default:
@@ -297,7 +297,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
             IItemHandler sourceHandler = sourceTile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, sourceFace);
             if (sourceHandler != null) {
                 for (int i = 0; i < sourceHandler.getSlots(); i++) {
-                    ItemStack extracted = sourceHandler.extractItem(i, FunctionalStorageConfig.UPGRADE_PULL_ITEMS, true);
+                    ItemStack extracted = sourceHandler.extractItem(i, Configurations.GENERAL.upgradePullItems, true);
                     if (!extracted.isEmpty()) {
                         ItemStack remainder = ItemHandlerHelper.insertItemStacked(drawerHandler, extracted, true);
                         if (remainder.getCount() < extracted.getCount()) {
@@ -317,7 +317,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
             if (sourceTile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, sourceFace)) {
                 IFluidHandler sourceFluid = sourceTile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, sourceFace);
                 if (sourceFluid != null) {
-                    FluidStack drained = sourceFluid.drain(FunctionalStorageConfig.UPGRADE_PULL_FLUID, false);
+                    FluidStack drained = sourceFluid.drain(Configurations.GENERAL.upgradePullFluid, false);
                     if (drained != null && drained.amount > 0) {
                         int filled = fluidTile.getFluidHandler().fill(drained, true);
                         if (filled > 0) {
@@ -353,7 +353,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
             IItemHandler destHandler = destTile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, destFace);
             if (destHandler != null) {
                 for (int i = 0; i < drawerHandler.getSlots(); i++) {
-                    ItemStack available = drawerHandler.extractItem(i, FunctionalStorageConfig.UPGRADE_PUSH_ITEMS, true);
+                    ItemStack available = drawerHandler.extractItem(i, Configurations.GENERAL.upgradePushItems, true);
                     if (!available.isEmpty()) {
                         ItemStack remainder = ItemHandlerHelper.insertItemStacked(destHandler, available, true);
                         if (remainder.getCount() < available.getCount()) {
@@ -373,7 +373,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
             if (destTile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, destFace)) {
                 IFluidHandler destFluid = destTile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, destFace);
                 if (destFluid != null) {
-                    FluidStack drained = fluidTile.getFluidHandler().drain(FunctionalStorageConfig.UPGRADE_PUSH_FLUID, false);
+                    FluidStack drained = fluidTile.getFluidHandler().drain(Configurations.GENERAL.upgradePushFluid, false);
                     if (drained != null && drained.amount > 0) {
                         int filled = destFluid.fill(drained, true);
                         if (filled > 0) {
@@ -419,7 +419,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
                 if (entityStack.isEmpty()) continue;
 
                 // Limit items collected per entity to config value (matches 1.21 behavior)
-                int maxCollect = Math.min(entityStack.getCount(), FunctionalStorageConfig.UPGRADE_COLLECTOR_ITEMS);
+                int maxCollect = Math.min(entityStack.getCount(), Configurations.GENERAL.upgradeCollectorItems);
                 ItemStack toInsert = entityStack.copy();
                 toInsert.setCount(maxCollect);
 
@@ -438,7 +438,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
             }
         }
 
-        if (tile instanceof FluidDrawerTile && world.getTotalWorldTime() % (FunctionalStorageConfig.UPGRADE_TICK * 3L) == 0) {
+        if (tile instanceof FluidDrawerTile && world.getTotalWorldTime() % (Configurations.GENERAL.upgradeTick * 3L) == 0) {
             handleCollectorFluids((FluidDrawerTile) tile, collectPos);
         }
     }
@@ -456,7 +456,7 @@ public class UtilityUpgradeItem extends UpgradeItem {
             return;
         }
 
-        int requested = Math.max(FunctionalStorageConfig.UPGRADE_COLLECTOR_FLUID, Fluid.BUCKET_VOLUME);
+        int requested = Math.max(Configurations.GENERAL.upgradeCollectorFluid, Fluid.BUCKET_VOLUME);
         FluidStack drained = sourceFluid.drain(requested, false);
         if (drained == null || drained.amount <= 0) {
             return;

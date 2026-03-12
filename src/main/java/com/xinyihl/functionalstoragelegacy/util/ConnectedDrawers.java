@@ -3,7 +3,7 @@ package com.xinyihl.functionalstoragelegacy.util;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.controller.ControllerExtensionTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.controller.DrawerControllerTile;
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
@@ -111,7 +111,7 @@ public class ConnectedDrawers {
 
         if (world == null || controllerPos == null) return;
 
-        int range = FunctionalStorageConfig.DRAWER_CONTROLLER_LINKING_RANGE;
+        int range = Configurations.GENERAL.drawerControllerLinkingRange;
         Set<BlockPos> visited = new HashSet<>();
         Queue<BlockPos> queue = new LinkedList<>();
 

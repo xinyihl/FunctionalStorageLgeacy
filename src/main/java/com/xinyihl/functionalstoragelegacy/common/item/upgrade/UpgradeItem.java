@@ -1,6 +1,6 @@
 package com.xinyihl.functionalstoragelegacy.common.item.upgrade;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -20,7 +20,7 @@ public abstract class UpgradeItem extends Item {
 
     protected UpgradeItem(Type type) {
         this.type = type;
-        this.setCreativeTab(FunctionalStorageLegacy.CREATIVE_TAB);
+        this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
     }
 
     public Type getType() {

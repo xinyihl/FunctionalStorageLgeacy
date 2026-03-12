@@ -1,8 +1,6 @@
 package com.xinyihl.functionalstoragelegacy.client.render;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.api.DrawerType;
-import com.xinyihl.functionalstoragelegacy.client.FunctionalStorageClientConfig;
 import com.xinyihl.functionalstoragelegacy.common.block.base.DrawerBlock;
 import com.xinyihl.functionalstoragelegacy.common.inventory.CompactingInventoryHandler;
 import com.xinyihl.functionalstoragelegacy.common.inventory.base.BigFluidHandler;
@@ -13,6 +11,8 @@ import com.xinyihl.functionalstoragelegacy.common.tile.FluidDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.compact.CompactingDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.compact.SimpleCompactingDrawerTile;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import com.xinyihl.functionalstoragelegacy.util.NumberUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -56,7 +56,7 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
 
         // Distance check using client config render range
         double distSq = te.getDistanceSq(Minecraft.getMinecraft().player.posX, Minecraft.getMinecraft().player.posY, Minecraft.getMinecraft().player.posZ);
-        double renderRange = FunctionalStorageClientConfig.DRAWER_RENDER_RANGE;
+        double renderRange = Configurations.CLIENT.drawerRenderRange;
         if (distSq > renderRange * renderRange) return;
 
         IBlockState state = te.getWorld().getBlockState(te.getPos());
@@ -585,7 +585,7 @@ public class DrawerRenderer extends TileEntitySpecialRenderer<ControllableDrawer
             GlStateManager.enableRescaleNormal();
             try {
                 Minecraft.getMinecraft().getRenderItem().renderItemIntoGUI(
-                        new ItemStack(FunctionalStorageLegacy.VOID_UPGRADE), 0, 0);
+                        new ItemStack(RegistrationHandler.VOID_UPGRADE), 0, 0);
             } catch (Exception ignored) {
             }
             GlStateManager.disableRescaleNormal();

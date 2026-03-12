@@ -7,7 +7,8 @@ import com.xinyihl.functionalstoragelegacy.common.inventory.controller.Controlle
 import com.xinyihl.functionalstoragelegacy.common.item.ConfigurationToolItem;
 import com.xinyihl.functionalstoragelegacy.common.item.LinkingToolItem;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import com.xinyihl.functionalstoragelegacy.util.ConnectedDrawers;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -116,7 +117,7 @@ public class DrawerControllerTile extends ControllableDrawerTile {
         ItemStack heldStack = player.getHeldItem(hand);
 
         if (heldStack.getItem() instanceof ConfigurationToolItem
-                || heldStack.getItem() == FunctionalStorageLegacy.LINKING_TOOL) {
+                || heldStack.getItem() == RegistrationHandler.LINKING_TOOL) {
             return false;
         }
 
@@ -237,7 +238,7 @@ public class DrawerControllerTile extends ControllableDrawerTile {
      * Base range from config multiplied by range fraction from storage upgrades.
      */
     public double getControllerRange() {
-        return FunctionalStorageConfig.DRAWER_CONTROLLER_LINKING_RANGE * getRangeMultiplier();
+        return Configurations.GENERAL.drawerControllerLinkingRange * getRangeMultiplier();
     }
 
     public boolean addConnectedDrawers(LinkingToolItem.ActionMode action, BlockPos... positions) {
@@ -247,7 +248,7 @@ public class DrawerControllerTile extends ControllableDrawerTile {
 
         for (BlockPos position : positions) {
             // Skip controller blocks (don't link controllers to themselves)
-            if (world.getBlockState(position).getBlock() == FunctionalStorageLegacy.DRAWER_CONTROLLER_BLOCK) {
+            if (world.getBlockState(position).getBlock() == RegistrationHandler.DRAWER_CONTROLLER_BLOCK) {
                 continue;
             }
 

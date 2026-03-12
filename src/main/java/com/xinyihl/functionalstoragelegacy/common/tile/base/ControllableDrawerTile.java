@@ -7,7 +7,8 @@ import com.xinyihl.functionalstoragelegacy.common.item.ConfigurationToolItem;
 import com.xinyihl.functionalstoragelegacy.common.item.upgrade.StorageUpgradeItem;
 import com.xinyihl.functionalstoragelegacy.common.item.upgrade.UpgradeItem;
 import com.xinyihl.functionalstoragelegacy.common.item.upgrade.UtilityUpgradeItem;
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -199,7 +200,7 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
 
         // Skip if using configuration or linking tool
         if (heldStack.getItem() instanceof ConfigurationToolItem
-                || heldStack.getItem() == FunctionalStorageLegacy.LINKING_TOOL) {
+                || heldStack.getItem() == RegistrationHandler.LINKING_TOOL) {
             return false;
         }
 
@@ -334,7 +335,7 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
 
         for (int i = 0; i < utilityUpgrades.getSlots(); i++) {
             ItemStack stack = utilityUpgrades.getStackInSlot(i);
-            if (stack.getItem() == FunctionalStorageLegacy.VOID_UPGRADE) {
+            if (stack.getItem() == RegistrationHandler.VOID_UPGRADE) {
                 state.voidUpgrade = true;
             }
         }
@@ -353,11 +354,11 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
             } else {
                 float tierMult = upgrade.getTier().getMultiplier();
                 state.storageMultiplier *= tierMult;
-                state.fluidMultiplier *= (tierMult / FunctionalStorageConfig.FLUID_DIVISOR);
-                state.rangeMultiplier *= (tierMult / FunctionalStorageConfig.RANGE_DIVISOR);
+                state.fluidMultiplier *= (tierMult / Configurations.STORAGE.fluidDivisor);
+                state.rangeMultiplier *= (tierMult / Configurations.STORAGE.rangeDivisor);
             }
         }
-        if (stack.getItem() == FunctionalStorageLegacy.CREATIVE_VENDING_UPGRADE) {
+        if (stack.getItem() == RegistrationHandler.CREATIVE_VENDING_UPGRADE) {
             state.creative = true;
         }
     }
@@ -401,7 +402,7 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
 
     protected boolean isStorageUpgradeItem(@Nonnull ItemStack stack) {
         return stack.getItem() instanceof StorageUpgradeItem
-                || stack.getItem() == FunctionalStorageLegacy.CREATIVE_VENDING_UPGRADE;
+                || stack.getItem() == RegistrationHandler.CREATIVE_VENDING_UPGRADE;
     }
 
     public float getStorageMultiplier() {
@@ -513,7 +514,7 @@ public abstract class ControllableDrawerTile extends TileEntity implements ITick
     public int getRedstoneSignal(EnumFacing side) {
         for (int i = 0; i < utilityUpgrades.getSlots(); i++) {
             ItemStack stack = utilityUpgrades.getStackInSlot(i);
-            if (stack.getItem() == FunctionalStorageLegacy.REDSTONE_UPGRADE) {
+            if (stack.getItem() == RegistrationHandler.REDSTONE_UPGRADE) {
                 return calculateRedstoneSignal();
             }
         }

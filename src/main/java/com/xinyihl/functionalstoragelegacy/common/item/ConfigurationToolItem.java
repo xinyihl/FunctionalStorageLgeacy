@@ -1,7 +1,7 @@
 package com.xinyihl.functionalstoragelegacy.common.item;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -34,7 +34,7 @@ public class ConfigurationToolItem extends Item {
 
     public ConfigurationToolItem() {
         this.setMaxStackSize(1);
-        this.setCreativeTab(FunctionalStorageLegacy.CREATIVE_TAB);
+        this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
     }
 
     public static ConfigurationAction getAction(ItemStack stack) {

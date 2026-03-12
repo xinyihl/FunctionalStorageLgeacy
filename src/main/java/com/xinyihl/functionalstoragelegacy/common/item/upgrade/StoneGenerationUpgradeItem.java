@@ -1,10 +1,10 @@
 package com.xinyihl.functionalstoragelegacy.common.item.upgrade;
 
-import com.xinyihl.functionalstoragelegacy.FunctionalStorageLegacy;
 import com.xinyihl.functionalstoragelegacy.common.inventory.CompactingInventoryHandler;
 import com.xinyihl.functionalstoragelegacy.common.tile.base.ControllableDrawerTile;
 import com.xinyihl.functionalstoragelegacy.common.tile.compact.SimpleCompactingDrawerTile;
-import com.xinyihl.functionalstoragelegacy.misc.FunctionalStorageConfig;
+import com.xinyihl.functionalstoragelegacy.misc.Configurations;
+import com.xinyihl.functionalstoragelegacy.misc.RegistrationHandler;
 import com.xinyihl.functionalstoragelegacy.util.CompactingUtil;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -28,7 +28,7 @@ public class StoneGenerationUpgradeItem extends UtilityUpgradeItem {
 
     public StoneGenerationUpgradeItem(StoneTier tier) {
         super(UtilityAction.NONE);
-        this.setCreativeTab(FunctionalStorageLegacy.CREATIVE_TAB);
+        this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
         this.setMaxStackSize(1);
         this.tier = tier;
     }
@@ -124,21 +124,29 @@ public class StoneGenerationUpgradeItem extends UtilityUpgradeItem {
     }
 
     public enum StoneTier {
-        BASIC(FunctionalStorageConfig.STONE_GENERATION_T1, 1),
-        ADVANCED(FunctionalStorageConfig.STONE_GENERATION_T2, 2),
-        REINFORCED(FunctionalStorageConfig.STONE_GENERATION_T3, 3),
-        MAGICAL(FunctionalStorageConfig.STONE_GENERATION_T4, 4);
+        BASIC(1),
+        ADVANCED(2),
+        REINFORCED(3),
+        MAGICAL(4);
 
-        private final float generationRate;
         private final int tier;
 
-        StoneTier(float generationRate, int tier) {
-            this.generationRate = generationRate;
+        StoneTier(int tier) {
             this.tier = tier;
         }
 
         public float getGenerationRate() {
-            return generationRate;
+            switch (this) {
+                case ADVANCED:
+                    return Configurations.GENERATION.stoneGenerationT2;
+                case REINFORCED:
+                    return Configurations.GENERATION.stoneGenerationT3;
+                case MAGICAL:
+                    return Configurations.GENERATION.stoneGenerationT4;
+                case BASIC:
+                default:
+                    return Configurations.GENERATION.stoneGenerationT1;
+            }
         }
 
         public int getTier() {
