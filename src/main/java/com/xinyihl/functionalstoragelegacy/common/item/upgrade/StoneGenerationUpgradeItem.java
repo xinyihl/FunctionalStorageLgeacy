@@ -27,7 +27,6 @@ public class StoneGenerationUpgradeItem extends UtilityUpgradeItem {
     public StoneGenerationUpgradeItem(StoneTier tier) {
         super(UtilityAction.NONE);
         this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
-        this.setMaxStackSize(1);
         this.tier = tier;
     }
 

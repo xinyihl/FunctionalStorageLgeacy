@@ -90,6 +90,10 @@ public class RegistrationHandler {
     public static UniversalItemGeneration UNIVERSAL_ITEM_GENERATION_T2;
     public static UniversalItemGeneration UNIVERSAL_ITEM_GENERATION_T3;
     public static UniversalItemGeneration UNIVERSAL_ITEM_GENERATION_T4;
+    public static WaterGenerationUpgradeItem WATER_GENERATION_UPGRADE_T1;
+    public static WaterGenerationUpgradeItem WATER_GENERATION_UPGRADE_T2;
+    public static WaterGenerationUpgradeItem WATER_GENERATION_UPGRADE_T3;
+    public static WaterGenerationUpgradeItem WATER_GENERATION_UPGRADE_T4;
     // Tools
     public static ConfigurationToolItem CONFIGURATION_TOOL;
     public static LinkingToolItem LINKING_TOOL;
@@ -221,6 +225,22 @@ public class RegistrationHandler {
         WIRELESS_PUSHING_UPGRADE.setRegistryName("wireless_pushing_upgrade");
         WIRELESS_PUSHING_UPGRADE.setTranslationKey(Tags.MOD_ID + ".wireless_pushing_upgrade");
 
+        WATER_GENERATION_UPGRADE_T1 = new WaterGenerationUpgradeItem(WaterGenerationUpgradeItem.WaterGenerationTire.T1);
+        WATER_GENERATION_UPGRADE_T1.setRegistryName("water_generation_upgrade_t1");
+        WATER_GENERATION_UPGRADE_T1.setTranslationKey(Tags.MOD_ID + ".water_generation_upgrade_t1");
+
+        WATER_GENERATION_UPGRADE_T2 = new WaterGenerationUpgradeItem(WaterGenerationUpgradeItem.WaterGenerationTire.T2);
+        WATER_GENERATION_UPGRADE_T2.setRegistryName("water_generation_upgrade_t2");
+        WATER_GENERATION_UPGRADE_T2.setTranslationKey(Tags.MOD_ID + ".water_generation_upgrade_t2");
+
+        WATER_GENERATION_UPGRADE_T3 = new WaterGenerationUpgradeItem(WaterGenerationUpgradeItem.WaterGenerationTire.T3);
+        WATER_GENERATION_UPGRADE_T3.setRegistryName("water_generation_upgrade_t3");
+        WATER_GENERATION_UPGRADE_T3.setTranslationKey(Tags.MOD_ID + ".water_generation_upgrade_t3");
+
+        WATER_GENERATION_UPGRADE_T4 = new WaterGenerationUpgradeItem(WaterGenerationUpgradeItem.WaterGenerationTire.T4);
+        WATER_GENERATION_UPGRADE_T4.setRegistryName("water_generation_upgrade_t4");
+        WATER_GENERATION_UPGRADE_T4.setTranslationKey(Tags.MOD_ID + ".water_generation_upgrade_t4");
+
         if(Configurations.GENERATION.UNIVERSAL_ITEMS_GENERATION_REGISTERED) {
             UNIVERSAL_ITEM_GENERATION_T1 = new UniversalItemGeneration(UniversalItemGeneration.GenerationTier.T1);
             UNIVERSAL_ITEM_GENERATION_T1.setRegistryName("universal_item_generation_T1");
@@ -266,7 +286,11 @@ public class RegistrationHandler {
                 STONE_GENERATION_UPGRADE_T1,
                 STONE_GENERATION_UPGRADE_T2,
                 STONE_GENERATION_UPGRADE_T3,
-                STONE_GENERATION_UPGRADE_T4
+                STONE_GENERATION_UPGRADE_T4,
+                WATER_GENERATION_UPGRADE_T1,
+                WATER_GENERATION_UPGRADE_T2,
+                WATER_GENERATION_UPGRADE_T3,
+                WATER_GENERATION_UPGRADE_T4
         );
         if(Configurations.GENERATION.UNIVERSAL_ITEMS_GENERATION_REGISTERED){
             event.getRegistry().registerAll(
