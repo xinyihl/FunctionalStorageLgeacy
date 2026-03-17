@@ -94,19 +94,47 @@ public class DrawerControllerTile extends ControllableDrawerTile {
         if (world != null && !world.isRemote) {
             // Periodically rebuild connected drawers list to keep it fresh
             if (world.getTotalWorldTime() % 40 == 0) {
+                double currentRange = getControllerRange();
+                double rangeSq = currentRange * currentRange;
+
                 int expectedSize = connectedDrawers.getConnectedDrawers().size();
                 int actualSize = connectedDrawers.getItemHandlers().size()
                         + connectedDrawers.getFluidHandlers().size();
-                if (expectedSize != actualSize) {
-                    connectedDrawers.getConnectedDrawers().removeIf(
-                            pos -> !(world.getTileEntity(BlockPos.fromLong(pos)) instanceof ControllableDrawerTile)
-                    );
+
+                boolean needsRebuild = (expectedSize != actualSize);
+
+                BlockPos controllerPos = this.getPos();
+                for (Long posLong : connectedDrawers.getConnectedDrawers()) {
+                    BlockPos drawerPos = BlockPos.fromLong(posLong);
+
+                    if (controllerPos.distanceSq(drawerPos) > rangeSq) {
+                        needsRebuild = true;
+                        break;
+                    }
+                }
+
+                if (needsRebuild) {
+                    connectedDrawers.getConnectedDrawers().removeIf(posLong -> {
+                        BlockPos drawerPos = BlockPos.fromLong(posLong);
+                        TileEntity te = world.getTileEntity(drawerPos);
+
+                        if (!(te instanceof ControllableDrawerTile)) {
+                            return true;
+                        }
+
+                        if (controllerPos.distanceSq(drawerPos) > rangeSq) {
+                            ((ControllableDrawerTile) te).clearControllerPos();
+                            return true;
+                        }
+                        return false;
+                    });
                     connectedDrawers.setLevel(world);
                     connectedDrawers.rebuild();
                     refreshHandlers();
                     markDirty();
                     sendUpdatePacket();
                 }
+
             }
         }
     }
