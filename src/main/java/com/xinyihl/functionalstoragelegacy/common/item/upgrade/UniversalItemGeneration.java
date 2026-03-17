@@ -33,7 +33,6 @@ public class UniversalItemGeneration extends UtilityUpgradeItem {
     public UniversalItemGeneration(GenerationTier tier) {
         super(UtilityAction.NONE);
         this.setCreativeTab(RegistrationHandler.CREATIVE_TAB);
-        this.setMaxStackSize(1);
         this.tier = tier;
     }
 

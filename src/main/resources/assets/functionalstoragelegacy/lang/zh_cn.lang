@@ -51,8 +51,13 @@ item.functionalstoragelegacy.universal_item_generation_T1.name=通用物品生�
 item.functionalstoragelegacy.universal_item_generation_T2.name=通用物品生成升级 T2
 item.functionalstoragelegacy.universal_item_generation_T3.name=通用物品生成升级 T3
 item.functionalstoragelegacy.universal_item_generation_T4.name=通用物品生成升级 T4
+item.functionalstoragelegacy.water_generation_upgrade_t1.name=水生成升级 T1
+item.functionalstoragelegacy.water_generation_upgrade_t2.name=水生成升级 T2
+item.functionalstoragelegacy.water_generation_upgrade_t3.name=水生成升级 T3
+item.functionalstoragelegacy.water_generation_upgrade_t4.name=水生成升级 T4
 
 # Tooltips
+item.functionalstoragelegacy.upgrade.water_generation.amount=生成速率：
 item.functionalstoragelegacy.iron_downgrade.desc=减少抽屉存储容量
 item.functionalstoragelegacy.storage_upgrade.multiplier=存储倍率：%s
 item.functionalstoragelegacy.upgrade.direction=方向：

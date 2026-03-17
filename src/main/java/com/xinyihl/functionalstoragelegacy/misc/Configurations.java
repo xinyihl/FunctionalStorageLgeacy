@@ -176,6 +176,26 @@ public final class Configurations {
         @Config.Comment("Universal Generator Items generation registered")
         public Boolean UNIVERSAL_ITEMS_GENERATION_REGISTERED = false;
 
+        @Config.Name("waterGenerationT1")
+        @Config.Comment("Water Generation Upgrade T1 generation rate")
+        @Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+        public int WATER_GENERATION_T1 = 1000;
+
+        @Config.Name("waterGenerationT2")
+        @Config.Comment("Water Generation Upgrade T2 generation rate")
+        @Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+        public int WATER_GENERATION_T2 = 2000;
+
+        @Config.Name("waterGenerationT3")
+        @Config.Comment("Water Generation Upgrade T3 generation rate")
+        @Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+        public int WATER_GENERATION_T3 = 4000;
+
+        @Config.Name("waterGenerationT4")
+        @Config.Comment("Water Generation Upgrade T4 generation rate")
+        @Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+        public int WATER_GENERATION_T4 = 8000;
+
     }
 
     public static final class Client {

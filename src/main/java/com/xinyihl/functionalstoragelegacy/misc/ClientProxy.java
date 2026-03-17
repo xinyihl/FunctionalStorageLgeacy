@@ -78,6 +78,10 @@ public class ClientProxy extends CommonProxy {
             registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_T2);
             registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_T3);
             registerItemModel(RegistrationHandler.STONE_GENERATION_UPGRADE_T4);
+            registerItemModel(RegistrationHandler.WATER_GENERATION_UPGRADE_T1);
+            registerItemModel(RegistrationHandler.WATER_GENERATION_UPGRADE_T2);
+            registerItemModel(RegistrationHandler.WATER_GENERATION_UPGRADE_T3);
+            registerItemModel(RegistrationHandler.WATER_GENERATION_UPGRADE_T4);
 
             if(Configurations.GENERATION.UNIVERSAL_ITEMS_GENERATION_REGISTERED) {
                 registerItemModel(RegistrationHandler.UNIVERSAL_ITEM_GENERATION_T1);
