@@ -22,6 +22,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -140,28 +141,42 @@ public class DrawerControllerTile extends ControllableDrawerTile {
     public void update() {
         super.update();
         if (world != null && !world.isRemote) {
-            // Periodically rebuild connected drawers list to keep it fresh
             if (world.getTotalWorldTime() % 10 == 0) {
                 int expectedSize = connectedDrawers.getConnectedDrawers().size();
                 int actualSize = connectedDrawers.getItemHandlers().size() + connectedDrawers.getFluidHandlers().size();
                 if (expectedSize != actualSize || needRebuild) {
-                    AxisAlignedBB area = new AxisAlignedBB(pos).grow(getControllerRange());
-                    connectedDrawers.getConnectedDrawers().removeIf(
-                            pos -> {
-                                BlockPos pos1 = BlockPos.fromLong(pos);
-                                TileEntity tile = world.getTileEntity(pos1);
-                                return !(area.contains(new Vec3d(pos1.getX() + 0.5, pos1.getY() + 0.5, pos1.getZ() + 0.5)) && tile instanceof ControllableDrawerTile);
-                            }
-                    );
-                    connectedDrawers.setLevel(world);
-                    connectedDrawers.rebuild();
-                    refreshHandlers();
-                    markDirty();
-                    sendUpdatePacket();
+                    rebuild();
                     needRebuild = false;
                 }
             }
         }
+    }
+
+    private void rebuild() {
+        AxisAlignedBB area = new AxisAlignedBB(pos).grow(getControllerRange());
+        connectedDrawers.getConnectedDrawers().removeIf(
+                pos -> {
+                    BlockPos pos1 = BlockPos.fromLong(pos);
+                    TileEntity tile = world.getTileEntity(pos1);
+                    return !(area.contains(new Vec3d(pos1.getX() + 0.5, pos1.getY() + 0.5, pos1.getZ() + 0.5)) && tile instanceof ControllableDrawerTile);
+                }
+        );
+        connectedDrawers.rebuild();
+        refreshHandlers();
+        markDirty();
+        sendUpdatePacket();
+    }
+
+    @Override
+    public void setWorld(World worldIn) {
+        super.setWorld(worldIn);
+        connectedDrawers.setLevel(worldIn);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        rebuild();
     }
 
     @Override
